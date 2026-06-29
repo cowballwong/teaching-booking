@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-29T13:40+01:00",
+  "generated": "2026-06-29T13:42+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -159,34 +159,6 @@
           "status": "upcoming",
           "date": "2026-08-15",
           "uk": "11:15"
-        }
-      ]
-    },
-    "fecdc446385e4a63b8cb4cb4cfa18feb6d9113e498724d15b07e6203e24b6f9f": {
-      "done": 0,
-      "total": 5,
-      "lessons": [
-        {
-          "n": 1,
-          "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "07:30"
-        },
-        {
-          "n": 2,
-          "status": "open"
-        },
-        {
-          "n": 3,
-          "status": "open"
-        },
-        {
-          "n": 4,
-          "status": "open"
-        },
-        {
-          "n": 5,
-          "status": "open"
         }
       ]
     },
