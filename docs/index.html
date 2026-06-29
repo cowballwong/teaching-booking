@@ -41,6 +41,9 @@
   button.cta:disabled{opacity:.4;cursor:not-allowed}
   button.ghost{padding:8px 14px;border:1.5px solid var(--accent);background:#fff;border-radius:8px;
     cursor:pointer;font-size:13.5px;font-weight:700;color:var(--accent);font-family:inherit;white-space:nowrap}
+  a.dl{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid var(--done);
+    background:var(--done-soft);border-radius:8px;font-size:13px;font-weight:700;color:var(--done);
+    text-decoration:none;white-space:nowrap}
   /* lesson rail */
   .lesson{display:flex;gap:14px;align-items:flex-start;padding:15px 16px;border:1px solid var(--line);
     border-radius:12px;background:var(--card);margin-bottom:11px}
@@ -245,7 +248,10 @@ function renderRail(lessons){
     div.className = "lesson" + (L.status==="done"?" done":"") +
                     ((L.status==="open" && !ready(lessons,i))?" muted":"");
     let badge="", btn="";
-    if(L.status==="done"){ badge=`<span class="badge b-done">✓ 完成</span>`; }
+    if(L.status==="done"){
+      badge=`<span class="badge b-done">✓ 完成</span>`;
+      btn=`<a class="dl" href="decks/lesson${L.n}.pdf" target="_blank" rel="noopener">📄 下載 PDF</a>`;
+    }
     else if(L.status==="upcoming"){
       badge=`<span class="badge b-up">📅 已約 · ${fmtShort(L.date,L.uk)}</span>`;
       btn=`<button class="ghost" data-act="reschedule" data-n="${L.n}">改期</button>`;
