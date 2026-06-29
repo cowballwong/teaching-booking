@@ -100,15 +100,27 @@ def load_taken():
         taken.add((str(r[ci['date']])[:10], str(r[ci['time']])[:5]))
     return taken
 
+def load_manual_blocks():
+    """Saturdays Anzon explicitly cancelled / is away (blocked_dates.json) — these
+    stay closed regardless of calendar markers (AL/LD don't auto-block)."""
+    try:
+        data = json.loads(Path(XLSX).parent.joinpath("blocked_dates.json").read_text(encoding="utf-8"))
+        return {b["date"] for b in data.get("blocked", []) if b.get("date")}
+    except Exception:
+        return set()
+
 def main():
     start = today()
     sats = saturdays(start, WEEKS)
     end = sats[-1] + dt.timedelta(days=1)
     blocking, flags = load_blocking_and_flags(start, end)
+    manual_blocked = load_manual_blocks()
     taken = load_taken()
     open_slots, all_flags = [], []
     for day in sats:
         if day < start:  # never offer a past day
+            continue
+        if day.isoformat() in manual_blocked:   # explicitly cancelled / away
             continue
         if day_block(day, blocking):
             continue
