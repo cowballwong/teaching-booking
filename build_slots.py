@@ -17,9 +17,8 @@ sys.stdout.reconfigure(encoding="utf-8")
 from zoneinfo import ZoneInfo
 from pathlib import Path
 LON = ZoneInfo("Europe/London")
-sys.path.insert(0, r"G:/My Drive/AI_Development/06_shared/03_calendar/scripts")
+sys.path.insert(0, r"G:/My Drive/AI_Development/06_shared/07_browser/scripts")
 import openpyxl
-from calendar_api import CalendarAPI
 
 WEEKS = 9                                   # ~2 months of Saturdays
 SLOTS_UK = ["07:30", "08:45", "10:00", "11:15"]
@@ -43,22 +42,30 @@ def saturdays(start, n):
     return out
 
 def load_blocking_and_flags(start, end):
-    api = CalendarAPI()
-    ukf = api.get_calendar_ids().get("UK Family")
-    evs = api.get_events(start.isoformat(), end.isoformat(), calendar_id=ukf) if ukf else []
+    # Read availability from the AUTHORITATIVE iCloud "UK Family" calendar via
+    # CalDAV — real-time, no Google-import sync lag. (AI Teaching LESSONS live on
+    # the separate Google "AI Teaching" calendar; this is only Anzon's life cal.)
+    import io, contextlib, icloud_caldav
+    with contextlib.redirect_stdout(io.StringIO()):       # hush its console prints
+        evs = icloud_caldav.list_events(start.isoformat(), end.isoformat(),
+                                        calendar="UK Family", json_out=False)
     blocking, flags = [], []
     for e in evs:
-        s = e.get("start", {}); en = e.get("end", {}); summ = e.get("summary", "(no title)")
-        if "dateTime" in s:
-            sd = dt.datetime.fromisoformat(s["dateTime"]).astimezone(LON)
-            ed = dt.datetime.fromisoformat(en["dateTime"]).astimezone(LON)
-            if ed.date() > sd.date():
-                blocking.append((sd.date(), ed.date(), summ, "multi-day"))
-            else:
-                flags.append((sd, ed, summ))
-        elif "date" in s:
-            sd = dt.date.fromisoformat(s["date"]); ed = dt.date.fromisoformat(en["date"])
+        summ = e.get("summary", "(no title)")
+        s = (e.get("start") or "").strip(); en = (e.get("end") or "").strip()
+        if not s:
+            continue
+        if len(s) == 10:                          # all-day "YYYY-MM-DD" (DTEND exclusive)
+            sd = dt.date.fromisoformat(s)
+            ed = dt.date.fromisoformat(en[:10]) if en else sd + dt.timedelta(days=1)
             blocking.append((sd, ed - dt.timedelta(days=1), summ, "all-day"))
+        else:                                     # timed "YYYY-MM-DD HH:MM:SS+TZ"
+            sdt = dt.datetime.fromisoformat(s).astimezone(LON)
+            edt = dt.datetime.fromisoformat(en).astimezone(LON) if en else sdt
+            if edt.date() > sdt.date():
+                blocking.append((sdt.date(), edt.date(), summ, "multi-day"))
+            else:
+                flags.append((sdt, edt, summ))
     return blocking, flags
 
 def day_block(day, blocking):
@@ -79,8 +86,10 @@ def load_taken():
     ci = {k: col(k) for k in ["date", "time", "status"]}
     taken = set()
     for r in rows[hidx + 1:]:
-        st = str(r[ci['status']]) if ci['status'] is not None and r[ci['status']] else ""
-        if not st.lower().startswith("schedul"): continue
+        st = str(r[ci['status']]).strip().lower() if ci['status'] is not None and r[ci['status']] else ""
+        # a slot is taken by any BOOKED lesson — Scheduled OR Rescheduled (or Done).
+        # (NOT just startswith "schedul", which wrongly skipped "Rescheduled".)
+        if st not in ("scheduled", "rescheduled", "done"): continue
         if not r[ci['date']] or not r[ci['time']]: continue
         taken.add((str(r[ci['date']])[:10], str(r[ci['time']])[:5]))
     return taken
