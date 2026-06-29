@@ -4,72 +4,91 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
-<title>AI Teaching · 預約上堂 Book a Lesson</title>
+<title>你嘅私人 AI Agent · 預約上堂</title>
 <style>
   :root{
-    --bg:#f7f5f0; --card:#fffdf9; --ink:#1c1a17; --muted:#6b655c;
-    --line:#e6e1d6; --accent:#0f766e; --accent-soft:#d7ece9;
+    --bg:#F6F0E6; --card:#FFFEFB; --ink:#2B2724; --soft:#4A443E; --muted:#8C8275;
+    --accent:#C0603F; --deep:#7C2E2A; --line:#E2D8C6; --stripe:#F1E8D9;
+    --accent-soft:#EFE0D2; --done:#6f7d52; --done-soft:#e7ecdc;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    font-family:"Segoe UI","Helvetica Neue",Arial,"Microsoft JhengHei","PingFang HK",sans-serif;
     line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:680px;margin:0 auto;padding:32px 20px 64px}
-  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:.2px}
-  header h1{font-size:30px;margin:0 0 4px}
-  header p{color:var(--muted);margin:0 0 24px;font-size:15px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;
-    padding:22px;margin-bottom:18px;box-shadow:0 1px 0 rgba(0,0,0,.02)}
-  label{display:block;font-size:13px;font-weight:600;color:var(--muted);
-    margin:0 0 6px;text-transform:uppercase;letter-spacing:.6px}
+  .wrap{max-width:700px;margin:0 auto;padding:0 20px 64px}
+  h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:.2px;margin:0}
+  /* header band echoing the deck */
+  header{margin:0 -20px 22px;padding:30px 20px 24px;background:var(--deep);color:#F6E9DE;
+    border-bottom:3px solid var(--accent)}
+  header .kick{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#E7B79E;margin-bottom:8px}
+  header h1{font-size:27px;color:#FFF7F0}
+  header p{margin:8px 0 0;font-size:14px;color:#E4C9BA}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:20px;margin-bottom:16px}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);
+    margin:0 0 6px;text-transform:uppercase;letter-spacing:.8px}
   input,select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line);
-    border-radius:10px;background:#fff;font-size:15px;color:var(--ink);font-family:inherit}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);
-    box-shadow:0 0 0 3px var(--accent-soft)}
-  .row{margin-bottom:16px}
+    border-radius:9px;background:#fff;font-size:15px;color:var(--ink);font-family:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .row{margin-bottom:14px}
   .hint{font-size:12.5px;color:var(--muted);margin-top:6px;text-transform:none;letter-spacing:0;font-weight:400}
   .seg{display:flex;gap:8px}
   .seg button{flex:1;padding:11px;border:1px solid var(--line);background:#fff;
-    border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--ink)}
+    border-radius:9px;cursor:pointer;font-size:14px;font-weight:700;color:var(--soft)}
   .seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .slots{display:grid;gap:10px}
-  .daygroup{margin-bottom:14px}
-  .daygroup .dh{font-family:Georgia,serif;font-size:15px;font-weight:600;margin:0 0 8px;color:var(--ink)}
+  button.cta{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);
+    color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+  button.cta:disabled{opacity:.4;cursor:not-allowed}
+  button.ghost{padding:8px 14px;border:1.5px solid var(--accent);background:#fff;border-radius:8px;
+    cursor:pointer;font-size:13.5px;font-weight:700;color:var(--accent);font-family:inherit;white-space:nowrap}
+  /* lesson rail */
+  .lesson{display:flex;gap:14px;align-items:flex-start;padding:15px 16px;border:1px solid var(--line);
+    border-radius:12px;background:var(--card);margin-bottom:11px}
+  .lesson.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .lesson.muted{opacity:.62}
+  .lnum{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:16px;
+    background:var(--accent-soft);color:var(--deep)}
+  .lesson.done .lnum{background:var(--done-soft);color:var(--done)}
+  .lbody{flex:1;min-width:0}
+  .ltitle{font-family:Georgia,serif;font-weight:600;font-size:16px}
+  .lsub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .lstate{display:flex;align-items:center;gap:9px;margin-top:9px;flex-wrap:wrap}
+  .badge{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .b-done{background:var(--done-soft);color:var(--done)}
+  .b-up{background:var(--stripe);color:var(--deep)}
+  .b-open{background:#F0E7D9;color:var(--soft)}
+  .b-lock{background:#efe9df;color:var(--muted)}
+  .slotpanel{margin-top:6px}
+  .slots{display:grid;gap:9px}
+  .daygroup{margin-bottom:12px}
+  .daygroup .dh{font-family:Georgia,serif;font-size:14.5px;font-weight:600;margin:0 0 7px}
   .slot{display:flex;justify-content:space-between;align-items:center;width:100%;
-    padding:12px 14px;border:1px solid var(--line);background:#fff;border-radius:11px;
-    cursor:pointer;text-align:left;font-size:15px}
+    padding:11px 14px;border:1px solid var(--line);background:#fff;border-radius:10px;
+    cursor:pointer;text-align:left;font-size:14.5px}
   .slot:hover{border-color:var(--accent)}
   .slot.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .slot .hk{font-size:12.5px;opacity:.8}
-  button.cta{width:100%;padding:14px;border:none;border-radius:12px;background:var(--accent);
-    color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
-  button.cta:disabled{opacity:.45;cursor:not-allowed}
-  button.ghost{width:100%;padding:11px;border:1px solid var(--line);background:#fff;
-    border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);font-family:inherit}
-  .ok{text-align:center;padding:18px 0}
-  .ok .big{font-size:46px}
-  .muted{color:var(--muted);font-size:14px}
+  .slot .hk{font-size:12px;opacity:.82}
+  .panelhead{font-size:13.5px;color:var(--soft);margin:2px 0 12px;background:var(--stripe);
+    padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
+  .ok{text-align:center;padding:20px 0}
+  .ok .big{font-size:48px;color:var(--accent)}
+  .muted-t{color:var(--muted);font-size:14px}
   .err{color:#b91c1c;font-size:13.5px;margin-top:10px;display:none}
-  .pill{display:inline-block;background:var(--accent-soft);color:var(--accent);
-    border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;margin-bottom:14px}
-  .progress{background:var(--accent-soft);border:1px solid #bfe0db;border-radius:12px;padding:14px 16px;margin-bottom:16px}
-  .progress b{font-size:16px}
-  .bar{height:8px;background:#fff;border-radius:99px;overflow:hidden;margin-top:8px;border:1px solid #cfe6e2}
-  .bar i{display:block;height:100%;background:var(--accent)}
   .hide{display:none}
-  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:28px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <span class="pill">AI Teaching · 1-on-1</span>
-    <h1>預約上堂 · Book a Lesson</h1>
-    <p>時間以英國時間為準，同時顯示香港時間。<br>Times shown in UK & Hong Kong.</p>
+    <div class="kick">AI Teaching · 1-on-1</div>
+    <h1>你嘅私人 AI Agent · 預約上堂</h1>
+    <p>5 堂課程 · 時間以英國時間為準，同時顯示香港時間</p>
   </header>
 
   <div id="app">
-    <!-- step 1: who -->
+    <!-- who -->
     <div class="card">
       <label>你係… / You are</label>
       <div class="seg" id="kind">
@@ -78,61 +97,47 @@
       </div>
     </div>
 
-    <!-- existing: email lookup -->
+    <!-- existing: email only -->
     <div class="card" id="lookupcard">
       <div class="row">
         <label>你嘅 Email</label>
         <input id="lemail" type="email" placeholder="上堂用嗰個 email" autocomplete="email">
-        <div class="hint">入返你報名時用嘅 email，幫你 show 返上到第幾課。</div>
+        <div class="hint">入返你報名嗰個 email，幫你 show 返每堂進度。唔使再打名。</div>
       </div>
       <button class="cta" id="lookup">查我的進度 · Look up</button>
       <div class="err" id="lerr"></div>
     </div>
 
-    <!-- new student name -->
+    <!-- new: name + email -->
     <div class="card hide" id="newcard">
       <div class="row">
         <label>名 / Name</label>
-        <input id="nname" placeholder="你嘅名 / Your name" autocomplete="name">
+        <input id="nname" placeholder="你嘅名" autocomplete="name">
       </div>
       <div class="row">
         <label>Email</label>
         <input id="nemail" type="email" placeholder="you@example.com" autocomplete="email">
       </div>
-      <p class="muted">新生由 <b>Lesson 1</b> 開始（全課程共 5 堂）。</p>
+      <button class="cta" id="startnew" disabled>睇課程 · See the 5 lessons →</button>
     </div>
 
-    <!-- booking panel (shared) -->
-    <div id="book" class="hide">
+    <!-- lesson rail -->
+    <div id="rail" class="hide">
       <div class="card">
-        <div class="progress hide" id="progress"></div>
-        <div class="row" id="lessonrow">
-          <label>邊一堂 / Which lesson</label>
-          <select id="lesson">
-            <option value="1">Lesson 1 — Concept + 起私人 agent</option>
-            <option value="2">Lesson 2 — 架構：multi-workspace</option>
-            <option value="3">Lesson 3 — Dashboard 控制台</option>
-            <option value="4">Lesson 4 — Memory + vector store</option>
-            <option value="5">Lesson 5 — Loops + 自動化 + 回顧</option>
-          </select>
-        </div>
-        <div class="row" id="confirmname">
-          <label>確認你個名 / Your name</label>
-          <input id="ename" placeholder="你嘅名" autocomplete="name">
-        </div>
+        <div id="welcome" class="panelhead hide"></div>
+        <div id="lessons"></div>
       </div>
 
-      <div class="card">
+      <!-- slot picker (revealed when a lesson is chosen) -->
+      <div class="card hide" id="bookcard">
+        <div class="panelhead" id="bookhead"></div>
         <label>揀時段 / Choose a slot</label>
-        <div id="slots" class="slots"><p class="muted">載入緊… Loading…</p></div>
-      </div>
-
-      <div class="card">
-        <div class="row">
-          <label>備註（可選）/ Note (optional)</label>
+        <div id="slots" class="slots"><p class="muted-t">載入緊… Loading…</p></div>
+        <div class="row" style="margin-top:14px">
+          <label>備註（可選）/ Note</label>
           <textarea id="note" rows="2" placeholder="想學咩、有咩問題…"></textarea>
         </div>
-        <button class="cta" id="submit" disabled>確認預約 · Confirm booking</button>
+        <button class="cta" id="submit" disabled>確認預約 · Confirm</button>
         <div class="err" id="err"></div>
       </div>
     </div>
@@ -141,153 +146,178 @@
   <div id="done" style="display:none">
     <div class="card ok">
       <div class="big">✓</div>
-      <h2>預約收到喇！</h2>
-      <p class="muted" id="donemsg"></p>
-      <p class="muted">我會盡快人手確認，再用 email 寄 Google Meet 連結俾你。<br>You'll get an email confirmation with the Meet link shortly.</p>
+      <h2 id="donetitle">預約收到喇！</h2>
+      <p class="muted-t" id="donemsg"></p>
+      <p class="muted-t">我會盡快人手確認，再用 email 寄 Google Meet 連結俾你。</p>
     </div>
   </div>
 
-  <footer>AI Teaching · Anzon Wong — 時間以 UK 時間為準</footer>
+  <footer>AI Teaching · Anzon Wong</footer>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
+const db = getFirestore(initializeApp({
   apiKey: "AIzaSyCNwMFWLo2WP6la9bx2rdwIoeEsv-6uNEM",
   authDomain: "worldcup-bet-2026.firebaseapp.com",
   projectId: "worldcup-bet-2026",
   storageBucket: "worldcup-bet-2026.firebasestorage.app",
   messagingSenderId: "86821717864",
   appId: "1:86821717864:web:da7cccea18b7ffe47db8dd"
-};
-const db = getFirestore(initializeApp(firebaseConfig));
+}));
+
+// lesson titles — matched to the latest C1–C5 deck
+const LESSONS = [
+  {n:1, en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步"},
+  {n:2, en:"Skills & Tools",           zh:"技能同工具 · 第一個外部工具 (Gmail)"},
+  {n:3, en:"Teach It to Upgrade Itself",zh:"教佢自己升級 · Describe→Research→Plan→Build"},
+  {n:4, en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
+  {n:5, en:"Autonomy & Guardrails",    zh:"放佢自己行 · 但管得住"},
+];
 
 const $ = id => document.getElementById(id);
-const state = { kind:"existing", slot:null, email:"", name:"" };
+const state = { kind:"existing", email:"", name:"", lesson:null, action:"book", slot:null, prog:null };
 const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"六",6:"六"};
-function fmtDate(iso){
-  const [y,m,d] = iso.split("-").map(Number);
-  const wd = new Date(Date.UTC(y,m-1,d)).getUTCDay();
-  return `${m}月${d}日 · 星期${WD[wd]} · ${iso}`;
-}
-async function sha256(s){
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
-}
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+function fmtDate(iso){ const [y,m,d]=iso.split("-").map(Number);
+  const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay(); return `${m}月${d}日 · 星期${WD[wd]} · ${iso}`; }
+function fmtShort(iso,uk){ const [,m,d]=iso.split("-").map(Number); return `${m}月${d}日 · UK ${uk}`; }
+async function sha256(s){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
 
-// kind toggle
+// ── kind toggle ──
 $("kind").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
   state.kind = b.dataset.kind;
   [...$("kind").children].forEach(x=>x.classList.toggle("on", x===b));
-  $("book").classList.add("hide");
-  if(state.kind === "existing"){
-    $("lookupcard").classList.remove("hide"); $("newcard").classList.add("hide");
-  } else {
-    $("lookupcard").classList.add("hide"); $("newcard").classList.remove("hide");
-    $("book").classList.remove("hide");
-    $("progress").classList.add("hide");
-    $("lessonrow").classList.add("hide");      // new = always L1
-    $("confirmname").classList.add("hide");    // name captured above
-    $("lesson").value = "1";
-  }
-  validate();
+  $("rail").classList.add("hide"); $("bookcard").classList.add("hide");
+  $("lookupcard").classList.toggle("hide", state.kind!=="existing");
+  $("newcard").classList.toggle("hide", state.kind!=="new");
 });
+["nname","nemail"].forEach(id=>$(id).addEventListener("input",()=>{
+  $("startnew").disabled = !( $("nname").value.trim() && emailOk($("nemail").value.trim()) );
+}));
 
-// existing lookup
+// ── existing lookup ──
 $("lookup").addEventListener("click", async () => {
-  $("lerr").style.display = "none";
+  $("lerr").style.display="none";
   const email = $("lemail").value.trim().toLowerCase();
-  if(!emailOk(email)){ $("lerr").textContent="請入一個有效 email。"; $("lerr").style.display="block"; return; }
+  if(!emailOk(email)){ showLerr("請入一個有效 email。"); return; }
   state.email = email;
-  let data = {};
-  try{ data = (await (await fetch("student-progress.json?cb="+Date.now())).json()).students || {}; }catch(e){}
-  const rec = data[await sha256(email)];
+  let students={}; try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }catch(e){}
+  const rec = students[await sha256(email)];
   if(!rec){
-    $("lerr").innerHTML = "搵唔到呢個 email 喎 🤔 你可能係<b>新生</b>，或者 email 打錯咗。" +
+    $("lerr").innerHTML='搵唔到呢個 email 喎 🤔 你可能係<b>新生</b>，或者 email 打錯咗。'+
       '<br><button class="ghost" id="gonew" style="margin-top:10px">我係新生 →</button>';
-    $("lerr").style.display = "block";
-    $("gonew").onclick = () => $("kind").children[1].click();
-    return;
+    $("lerr").style.display="block"; $("gonew").onclick=()=>$("kind").children[1].click(); return;
   }
-  // show progress + open booking
-  state.name = "";
-  const pct = Math.round(rec.done / rec.total * 100);
-  $("progress").innerHTML = `歡迎返嚟 👋　<b>已完成 ${rec.done} / ${rec.total} 堂</b>`
-    + (rec.finished ? "　🎉 全課程完成！想再 book 都得。" : `　下一堂建議：<b>Lesson ${rec.next}</b>`)
-    + `<div class="bar"><i style="width:${pct}%"></i></div>`;
-  $("progress").classList.remove("hide");
-  $("lessonrow").classList.remove("hide");
-  $("confirmname").classList.remove("hide");
-  $("lesson").value = String(rec.next);
-  $("book").classList.remove("hide");
-  $("book").scrollIntoView({behavior:"smooth", block:"start"});
-  validate();
+  state.prog = rec.lessons;
+  $("welcome").innerHTML = `歡迎返嚟 👋　你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀一堂約位或者改期：`;
+  $("welcome").classList.remove("hide");
+  renderRail(rec.lessons); openRail();
 });
+function showLerr(m){ $("lerr").textContent=m; $("lerr").style.display="block"; }
 
-// load slots
-fetch("open-slots.json?cb=" + Date.now()).then(r=>r.json()).then(data => {
-  const slots = data.slots || [];
-  const box = $("slots");
-  if(!slots.length){ box.innerHTML = '<p class="muted">暫時冇開放時段，請遲啲再睇。<br>No open slots right now.</p>'; return; }
-  const byDay = {};
-  slots.forEach(s => (byDay[s.date] ||= []).push(s));
-  box.innerHTML = "";
-  Object.keys(byDay).sort().forEach(date => {
-    const g = document.createElement("div"); g.className = "daygroup";
-    g.innerHTML = `<div class="dh">${fmtDate(date)}</div>`;
-    const list = document.createElement("div"); list.className = "slots";
-    byDay[date].forEach(s => {
-      const b = document.createElement("button"); b.className = "slot";
-      b.innerHTML = `<span>UK ${s.uk}</span><span class="hk">HK ${s.hk}</span>`;
-      b.onclick = () => {
-        state.slot = s;
-        document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
-        b.classList.add("on"); validate();
-      };
+// ── new student ──
+$("startnew").addEventListener("click", () => {
+  state.name = $("nname").value.trim();
+  state.email = $("nemail").value.trim().toLowerCase();
+  state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));   // nothing booked yet
+  $("welcome").innerHTML = `${esc(state.name)}，歡迎！由 <b>Lesson 1</b> 開始，揀個時間就得：`;
+  $("welcome").classList.remove("hide");
+  renderRail(state.prog); openRail();
+});
+function openRail(){ $("rail").classList.remove("hide"); $("rail").scrollIntoView({behavior:"smooth",block:"start"}); }
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+// ── render lesson rail ──
+function ready(lessons, i){          // lesson bookable only if previous done/upcoming
+  if(i===0) return true;
+  const p = lessons[i-1].status; return p==="done" || p==="upcoming";
+}
+function renderRail(lessons){
+  const box = $("lessons"); box.innerHTML="";
+  lessons.forEach((L,i) => {
+    const meta = LESSONS[L.n-1];
+    const div = document.createElement("div");
+    div.className = "lesson" + (L.status==="done"?" done":"") +
+                    ((L.status==="open" && !ready(lessons,i))?" muted":"");
+    let badge="", btn="";
+    if(L.status==="done"){ badge=`<span class="badge b-done">✓ 完成</span>`; }
+    else if(L.status==="upcoming"){
+      badge=`<span class="badge b-up">📅 已約 · ${fmtShort(L.date,L.uk)}</span>`;
+      btn=`<button class="ghost" data-act="reschedule" data-n="${L.n}">改期</button>`;
+    } else if(ready(lessons,i)){
+      badge=`<span class="badge b-open">未約</span>`;
+      btn=`<button class="ghost" data-act="book" data-n="${L.n}">約呢堂 →</button>`;
+    } else {
+      badge=`<span class="badge b-lock">🔒 完成上一堂後可約</span>`;
+    }
+    div.innerHTML = `<div class="lnum">${L.n}</div><div class="lbody">
+      <div class="ltitle">Lesson ${L.n} — ${meta.en}</div>
+      <div class="lsub">${meta.zh}</div>
+      <div class="lstate">${badge}${btn}</div></div>`;
+    box.appendChild(div);
+  });
+  box.querySelectorAll("button[data-n]").forEach(b=>b.onclick=()=>chooseLesson(+b.dataset.n, b.dataset.act));
+}
+
+function chooseLesson(n, act){
+  state.lesson=n; state.action=act; state.slot=null;
+  document.querySelectorAll(".lesson").forEach((el,i)=>el.classList.toggle("sel", i===n-1));
+  const meta = LESSONS[n-1];
+  const cur = (state.prog.find(l=>l.n===n)||{});
+  $("bookhead").innerHTML = act==="reschedule"
+    ? `改期：<b>Lesson ${n} — ${meta.en}</b><br>而家係 ${fmtShort(cur.date,cur.uk)}，揀個新時間 👇`
+    : `約堂：<b>Lesson ${n} — ${meta.en}</b><br>揀個時間 👇`;
+  $("bookcard").classList.remove("hide");
+  document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
+  $("submit").disabled=true;
+  $("bookcard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ── load slots ──
+fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
+  const slots=data.slots||[]; const box=$("slots");
+  if(!slots.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
+  const byDay={}; slots.forEach(s=>(byDay[s.date]||=[]).push(s));
+  box.innerHTML="";
+  Object.keys(byDay).sort().forEach(date=>{
+    const g=document.createElement("div"); g.className="daygroup";
+    g.innerHTML=`<div class="dh">${fmtDate(date)}</div>`;
+    const list=document.createElement("div"); list.className="slots";
+    byDay[date].forEach(s=>{
+      const b=document.createElement("button"); b.className="slot";
+      b.innerHTML=`<span>UK ${s.uk}</span><span class="hk">HK ${s.hk}</span>`;
+      b.onclick=()=>{ state.slot=s; document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
+        b.classList.add("on"); $("submit").disabled=!state.slot; };
       list.appendChild(b);
     });
     g.appendChild(list); box.appendChild(g);
   });
-}).catch(()=> $("slots").innerHTML = '<p class="muted">載入失敗，請 refresh。</p>');
+}).catch(()=>$("slots").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>');
 
-function currentName(){
-  return state.kind === "new" ? $("nname").value.trim() : $("ename").value.trim();
-}
-function currentEmail(){
-  return state.kind === "new" ? $("nemail").value.trim().toLowerCase() : state.email;
-}
-function validate(){
-  const ok = state.slot && currentName() && emailOk(currentEmail());
-  $("submit").disabled = !ok;
-}
-["nname","nemail","ename"].forEach(id => $(id).addEventListener("input", validate));
-
+// ── submit ──
 $("submit").addEventListener("click", async () => {
-  $("submit").disabled = true; $("err").style.display = "none";
+  if(!state.slot||!state.lesson) return;
+  $("submit").disabled=true; $("err").style.display="none";
   try{
-    await addDoc(collection(db, "teach_bookings"), {
-      kind: state.kind,
-      lesson: state.kind === "new" ? 1 : Number($("lesson").value),
+    await addDoc(collection(db,"teach_bookings"), {
+      kind: state.kind, action: state.action, lesson: state.lesson,
       slot_date: state.slot.date, slot_uk: state.slot.uk, slot_hk: state.slot.hk,
-      name: currentName(),
-      email: currentEmail(),
-      note: $("note").value.trim().slice(0,500),
-      status: "pending",
-      created: serverTimestamp(),
-      ua: navigator.userAgent.slice(0,120)
+      name: state.kind==="new" ? state.name : "",
+      email: state.email, note: $("note").value.trim().slice(0,500),
+      status: "pending", created: serverTimestamp(), ua: navigator.userAgent.slice(0,120)
     });
-    $("donemsg").textContent =
-      `${fmtDate(state.slot.date)} · UK ${state.slot.uk} / HK ${state.slot.hk}`;
-    $("app").style.display = "none"; $("done").style.display = "block";
-    window.scrollTo({top:0, behavior:"smooth"});
+    $("donetitle").textContent = state.action==="reschedule" ? "改期收到喇！" : "預約收到喇！";
+    $("donemsg").textContent = `Lesson ${state.lesson} · ${fmtDate(state.slot.date)} · UK ${state.slot.uk} / HK ${state.slot.hk}`;
+    $("app").style.display="none"; $("done").style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
   }catch(e){
-    $("err").textContent = "提交失敗，請再試一次。(" + (e.code||e.message) + ")";
-    $("err").style.display = "block"; $("submit").disabled = false;
+    $("err").textContent="提交失敗，請再試一次。("+(e.code||e.message)+")";
+    $("err").style.display="block"; $("submit").disabled=false;
   }
 });
 </script>

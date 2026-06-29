@@ -1,14 +1,12 @@
 """build_progress.py — emit student-progress.json for the booking page's
-"returning student" lookup.
+"returning student" lookup (card-per-lesson view).
 
-Anzon wants 舊生 to enter their email and see their class status, then book the
-next lesson. To do that on a STATIC public page WITHOUT exposing the student
-roster, this file is keyed by the **SHA-256 hash of the lowercased email** and
-the value contains ONLY lesson counts — never a name, email, contact or date.
-
-Worst case if the file is public: someone who already knows a student's exact
-email learns which lesson number that student is on. They can NOT enumerate or
-download the student list (hashes aren't reversible; no PII in the file).
+Keyed by SHA-256(lowercased email). Value = per-lesson status array so the page
+can show one card per lesson (done / upcoming / open) and offer a reschedule or
+book button on the ones that aren't done yet. The file carries NO name, email or
+contact — only lesson numbers, statuses and (for upcoming) the booked date/time.
+Worst case if public: someone who already knows a student's exact email sees that
+student's lesson statuses. They cannot enumerate or download the roster.
 
 Completion is inferred by DATE (a lesson dated before today = already taken),
 because the Schedule sheet only carries Scheduled/Rescheduled statuses.
@@ -31,17 +29,15 @@ def h(email):
 def main():
     today = dt.datetime.now(LON).date()
     wb = openpyxl.load_workbook(XLSX, data_only=True, read_only=True)
-    # email map (Students: header row 3, data from row 4; email in col 2 'Contact')
     email_of = {}
-    for r in wb["Students"].iter_rows(min_row=4, values_only=True):
+    for r in wb["Students"].iter_rows(min_row=4, values_only=True):   # header row 3
         if r and r[0] and len(r) > 1 and r[1] and "@" in str(r[1]):
             email_of[str(r[0]).strip()] = str(r[1]).strip().lower()
-    # gather lessons per student (Schedule: data from row 5)
-    per = {}   # name -> {"done": set, "all": set}
-    for r in wb["Schedule"].iter_rows(min_row=5, values_only=True):
+    # per student -> per lesson -> best row
+    per = {}   # name -> {lesson: {"date":d, "uk":t}}
+    for r in wb["Schedule"].iter_rows(min_row=5, values_only=True):   # header row 4
         if not r or not r[0] or not r[1]:
             continue
-        name = str(r[0]).strip()
         status = str(r[4]).strip().lower() if len(r) > 4 and r[4] else ""
         if status in DEAD:
             continue
@@ -49,33 +45,43 @@ def main():
             lesson = int(r[1])
         except (TypeError, ValueError):
             continue
+        if not (1 <= lesson <= TOTAL):
+            continue
+        name = str(r[0]).strip()
         datestr = str(r[2])[:10] if len(r) > 2 and r[2] else ""
-        d = per.setdefault(name, {"done": set(), "all": set()})
-        d["all"].add(lesson)
+        uk = str(r[3])[:5] if len(r) > 3 and r[3] else ""
         try:
-            if datestr and dt.date.fromisoformat(datestr) < today:
-                d["done"].add(lesson)
+            d = dt.date.fromisoformat(datestr) if datestr else None
         except ValueError:
-            pass
-    wb.close()
+            d = None
+        rec = per.setdefault(name, {})
+        # keep the most relevant row per lesson: prefer the latest date
+        cur = rec.get(lesson)
+        if cur is None or (d and cur.get("_d") and d > cur["_d"]) or (d and not cur.get("_d")):
+            rec[lesson] = {"_d": d, "date": datestr, "uk": uk}
 
     out = {}
-    for name, d in per.items():
+    for name, rec in per.items():
         email = email_of.get(name)
         if not email:
             continue
-        done = len(d["done"])
-        # next = first lesson not yet taken (handles reschedules: a cancelled
-        # future lesson is still "not done", so it surfaces as the one to rebook)
-        nxt = next((n for n in range(1, TOTAL + 1) if n not in d["done"]), TOTAL)
-        finished = done >= TOTAL
-        out[h(email)] = {"done": done, "next": nxt,
-                         "total": TOTAL, "finished": finished}
+        lessons = []
+        for n in range(1, TOTAL + 1):
+            row = rec.get(n)
+            if not row or not row.get("_d"):
+                lessons.append({"n": n, "status": "open"})
+            elif row["_d"] < today:
+                lessons.append({"n": n, "status": "done"})
+            else:
+                lessons.append({"n": n, "status": "upcoming",
+                                "date": row["date"], "uk": row["uk"]})
+        done = sum(1 for l in lessons if l["status"] == "done")
+        out[h(email)] = {"done": done, "total": TOTAL, "lessons": lessons}
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({
         "generated": dt.datetime.now(LON).isoformat(timespec="minutes"),
-        "note": "keyed by sha256(lowercased email); values are lesson counts only",
+        "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
         "students": out,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ wrote progress for {len(out)} students (hashed) -> {OUT}")
