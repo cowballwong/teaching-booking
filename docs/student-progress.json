@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-29T13:42+01:00",
+  "generated": "2026-06-29T14:09+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -17,20 +17,18 @@
         {
           "n": 3,
           "status": "upcoming",
-          "date": "2026-07-04",
+          "date": "2026-07-11",
           "uk": "10:00"
         },
         {
           "n": 4,
           "status": "upcoming",
-          "date": "2026-07-11",
+          "date": "2026-07-18",
           "uk": "10:00"
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-07-18",
-          "uk": "10:00"
+          "status": "open"
         }
       ]
     },
@@ -85,13 +83,13 @@
         {
           "n": 4,
           "status": "upcoming",
-          "date": "2026-07-04",
+          "date": "2026-07-11",
           "uk": "07:30"
         },
         {
           "n": 5,
           "status": "upcoming",
-          "date": "2026-07-11",
+          "date": "2026-07-18",
           "uk": "07:30"
         }
       ]
@@ -115,14 +113,12 @@
         {
           "n": 4,
           "status": "upcoming",
-          "date": "2026-07-04",
+          "date": "2026-07-11",
           "uk": "11:15"
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-07-11",
-          "uk": "11:15"
+          "status": "open"
         }
       ]
     },
@@ -236,15 +232,11 @@
       "lessons": [
         {
           "n": 1,
-          "status": "upcoming",
-          "date": "2026-07-04",
-          "uk": "08:45"
+          "status": "open"
         },
         {
           "n": 2,
-          "status": "upcoming",
-          "date": "2026-07-18",
-          "uk": "07:30"
+          "status": "open"
         },
         {
           "n": 3,

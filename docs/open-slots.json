@@ -1,7 +1,31 @@
 {
-  "generated": "2026-06-29T13:42+01:00",
+  "generated": "2026-06-29T14:09+01:00",
   "tz_note": "UK = Europe/London; HK = UK+7 (BST)",
   "slots": [
+    {
+      "date": "2026-07-11",
+      "weekday": "Sat",
+      "uk": "07:30",
+      "hk": "14:30"
+    },
+    {
+      "date": "2026-07-11",
+      "weekday": "Sat",
+      "uk": "10:00",
+      "hk": "17:00"
+    },
+    {
+      "date": "2026-07-18",
+      "weekday": "Sat",
+      "uk": "07:30",
+      "hk": "14:30"
+    },
+    {
+      "date": "2026-07-18",
+      "weekday": "Sat",
+      "uk": "10:00",
+      "hk": "17:00"
+    },
     {
       "date": "2026-08-01",
       "weekday": "Sat",
