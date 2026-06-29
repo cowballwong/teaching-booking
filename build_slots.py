@@ -22,6 +22,7 @@ import openpyxl
 
 WEEKS = 9                                   # ~2 months of Saturdays
 SLOTS_UK = ["07:30", "08:45", "10:00", "11:15"]
+IRIS_MARKERS = {"al", "ld"}                 # Iris leave / work — never block teaching
 OUT = Path(__file__).parent / "docs" / "open-slots.json"
 XLSX = r"G:/My Drive/AI_Development/02_freelance/03_ai-teaching/students/attendance.xlsx"
 
@@ -52,6 +53,11 @@ def load_blocking_and_flags(start, end):
     blocking, flags = [], []
     for e in evs:
         summ = e.get("summary", "(no title)")
+        # "AL" (Iris annual leave) / "LD" (Iris working days) are IRIS's schedule —
+        # they do NOT block Anzon's teaching. Only genuine whole-family trips (named
+        # events) or an explicit cancel block a Saturday. (Anzon corrected 2026-06-29.)
+        if summ.strip().lower() in IRIS_MARKERS:
+            continue
         s = (e.get("start") or "").strip(); en = (e.get("end") or "").strip()
         if not s:
             continue
