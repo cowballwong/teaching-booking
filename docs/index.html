@@ -95,24 +95,32 @@
     <div class="card">
       <label>你係… / You are</label>
       <div class="seg" id="kind">
-        <button data-kind="existing" class="on">舊學生 Returning</button>
-        <button data-kind="new">新學生 New</button>
+        <button data-kind="new" class="on">新學生 New</button>
+        <button data-kind="existing">舊學生 Returning</button>
       </div>
     </div>
 
+    <!-- new: course intro + name + email -->
+    <div class="card" id="introcard">
+      <h3 style="font-size:18px;margin-bottom:10px">關於呢個課程 · About the course</h3>
+      <p style="margin:0 0 9px;font-size:14.5px"><b>背景：</b>AI agent 已經唔再淨係識傾偈 —— 佢可以幫你收 email、做資料搜集、寫嘢、駁工具、自動化你嘅日常。</p>
+      <p style="margin:0 0 9px;font-size:14.5px"><b>目的：</b>5 堂 1-on-1，由零開始教你親手起一個屬於你自己、香港用得着嘅私人 AI agent，唔使寫好多 code。</p>
+      <p style="margin:0;font-size:14.5px"><b>成品：</b>堂尾你會有一個真係行到嘅私人 AI agent —— 識用 skill 同工具、有記憶、開口開眼、識自動化，仲有埋你自己嘅控制 dashboard。</p>
+    </div>
+
     <!-- existing: email only -->
-    <div class="card" id="lookupcard">
+    <div class="card hide" id="lookupcard">
       <div class="row">
         <label>你嘅 Email</label>
         <input id="lemail" type="email" placeholder="上堂用嗰個 email" autocomplete="email">
-        <div class="hint">入返你報名嗰個 email，幫你 show 返每堂進度。唔使再打名。</div>
+        <div class="hint">入返你報名嗰個 email，幫你 show 返每堂進度。</div>
       </div>
       <button class="cta" id="lookup">查我的進度 · Look up</button>
       <div class="err" id="lerr"></div>
     </div>
 
     <!-- new: name + email -->
-    <div class="card hide" id="newcard">
+    <div class="card" id="newcard">
       <div class="row">
         <label>名 / Name</label>
         <input id="nname" placeholder="你嘅名" autocomplete="name">
@@ -181,7 +189,7 @@ const LESSONS = [
 ];
 
 const $ = id => document.getElementById(id);
-const state = { kind:"existing", email:"", name:"", lesson:null, action:"book", slot:null, prog:null };
+const state = { kind:"new", email:"", name:"", lesson:null, action:"book", slot:null, prog:null };
 const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"六",6:"六"};
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
 function fmtDate(iso){ const [y,m,d]=iso.split("-").map(Number);
@@ -197,6 +205,7 @@ $("kind").addEventListener("click", e => {
   [...$("kind").children].forEach(x=>x.classList.toggle("on", x===b));
   $("rail").classList.add("hide"); $("bookcard").classList.add("hide");
   $("lookupcard").classList.toggle("hide", state.kind!=="existing");
+  $("introcard").classList.toggle("hide", state.kind!=="new");
   $("newcard").classList.toggle("hide", state.kind!=="new");
 });
 ["nname","nemail"].forEach(id=>$(id).addEventListener("input",()=>{
@@ -228,25 +237,20 @@ $("startnew").addEventListener("click", () => {
   state.name = $("nname").value.trim();
   state.email = $("nemail").value.trim().toLowerCase();
   state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));   // nothing booked yet
-  $("welcome").innerHTML = `${esc(state.name)}，歡迎！由 <b>Lesson 1</b> 開始，揀個時間就得：`;
+  $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間（每堂都可以獨立預約）：`;
   $("welcome").classList.remove("hide");
   renderRail(state.prog); openRail();
 });
 function openRail(){ $("rail").classList.remove("hide"); $("rail").scrollIntoView({behavior:"smooth",block:"start"}); }
 function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
-// ── render lesson rail ──
-function ready(lessons, i){          // lesson bookable only if previous done/upcoming
-  if(i===0) return true;
-  const p = lessons[i-1].status; return p==="done" || p==="upcoming";
-}
+// ── render lesson rail (every lesson is independently bookable) ──
 function renderRail(lessons){
   const box = $("lessons"); box.innerHTML="";
   lessons.forEach((L,i) => {
     const meta = LESSONS[L.n-1];
     const div = document.createElement("div");
-    div.className = "lesson" + (L.status==="done"?" done":"") +
-                    ((L.status==="open" && !ready(lessons,i))?" muted":"");
+    div.className = "lesson" + (L.status==="done"?" done":"");
     let badge="", btn="";
     if(L.status==="done"){
       badge=`<span class="badge b-done">✓ 完成</span>`;
@@ -255,11 +259,9 @@ function renderRail(lessons){
     else if(L.status==="upcoming"){
       badge=`<span class="badge b-up">📅 已約 · ${fmtShort(L.date,L.uk)}</span>`;
       btn=`<button class="ghost" data-act="reschedule" data-n="${L.n}">改期</button>`;
-    } else if(ready(lessons,i)){
+    } else {
       badge=`<span class="badge b-open">未約</span>`;
       btn=`<button class="ghost" data-act="book" data-n="${L.n}">約呢堂 →</button>`;
-    } else {
-      badge=`<span class="badge b-lock">🔒 完成上一堂後可約</span>`;
     }
     div.innerHTML = `<div class="lnum">${L.n}</div><div class="lbody">
       <div class="ltitle">Lesson ${L.n} — ${meta.en}</div>
