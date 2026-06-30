@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-30T08:16+01:00",
+  "generated": "2026-06-30T08:19+01:00",
   "tz_note": "UK = Europe/London; HK = UK+7 (BST)",
   "slots": [
     {
@@ -9,7 +9,7 @@
       "hk": "14:30"
     },
     {
-      "date": "2026-08-01",
+      "date": "2026-08-08",
       "weekday": "Sat",
       "uk": "10:00",
       "hk": "17:00"
