@@ -144,6 +144,10 @@
         <div class="panelhead" id="bookhead"></div>
         <label>揀時段 / Choose a slot</label>
         <div id="slots" class="slots"><p class="muted-t">載入緊… Loading…</p></div>
+        <div id="feenote" class="hide" style="margin-top:13px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">
+          💳 <b>學費 · Course fee：HK$1,000</b>（全 5 堂 / for all 5 lessons）<br>
+          喺<b>最後一堂</b>先交 —— the fee is paid at your <b>final lesson</b>, not now.
+        </div>
         <div class="row" style="margin-top:14px">
           <label>備註（可選）/ Note</label>
           <textarea id="note" rows="2" placeholder="想學咩、有咩問題…"></textarea>
@@ -281,6 +285,7 @@ function chooseLesson(n, act){
     ? `改期：<b>Lesson ${n} — ${meta.en}</b><br>而家係 ${fmtShort(cur.date,cur.uk)}，揀個新時間 👇`
     : `約堂：<b>Lesson ${n} — ${meta.en}</b><br>揀個時間 👇`;
   $("bookcard").classList.remove("hide");
+  $("feenote").classList.toggle("hide", state.kind!=="new");   // fee note for new students only
   document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
   $("submit").disabled=true;
   $("bookcard").scrollIntoView({behavior:"smooth",block:"start"});
