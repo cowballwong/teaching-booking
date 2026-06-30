@@ -241,11 +241,23 @@ $("lookup").addEventListener("click", async () => {
 function showLerr(m){ $("lerr").textContent=m; $("lerr").style.display="block"; }
 
 // ── new student ──
-$("startnew").addEventListener("click", () => {
+$("startnew").addEventListener("click", async () => {
   state.name = $("nname").value.trim();
   state.email = $("nemail").value.trim().toLowerCase();
-  state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));
   state.picks={}; state.active=null;
+  // Guard: if this email is ALREADY a registered student, don't let them re-book
+  // as "new" (would show blank lessons → duplicate/clashing bookings). Quietly
+  // switch them into the existing-student view with their REAL progress.
+  let students={}; try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }catch(e){}
+  const rec = students[await sha256(state.email)];
+  if(rec){
+    state.kind = "existing";
+    state.prog = rec.lessons;
+    $("welcome").innerHTML = `${esc(state.name)}，你個 email 已經報咗名喇 👋 幫你切返「現有學生」版面 —— 你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀未約嘅堂約位，或者改期就得（唔使再當新生重新 book）。`;
+    $("welcome").classList.remove("hide"); openRail(); return;
+  }
+  state.kind = "new";
+  state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));
   $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間 —— 可以一次過揀晒幾堂，最後撳一次 confirm。`;
   $("welcome").classList.remove("hide"); openRail();
 });
