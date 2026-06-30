@@ -241,7 +241,9 @@ $("startnew").addEventListener("click", () => {
   state.name = $("nname").value.trim();
   state.email = $("nemail").value.trim().toLowerCase();
   state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));   // nothing booked yet
-  $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間（每堂都可以獨立預約）：`;
+  $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間（每堂都可以獨立預約）：`
+    + `<div style="margin-top:11px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">`
+    + `💳 <b>學費 · Course fee：HK$1,000</b>（全 5 堂 / all 5 lessons）—— 喺<b>最後一堂</b>先交,而家唔使俾。Paid at your final lesson.</div>`;
   $("welcome").classList.remove("hide");
   renderRail(state.prog); openRail();
 });
