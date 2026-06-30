@@ -17,7 +17,6 @@
     line-height:1.55;-webkit-font-smoothing:antialiased}
   .wrap{max-width:700px;margin:0 auto;padding:0 20px 64px}
   h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:600;letter-spacing:.2px;margin:0}
-  /* header band echoing the deck */
   header{margin:0 -20px 22px;padding:30px 20px 24px;background:var(--deep);color:#F6E9DE;
     border-bottom:3px solid var(--accent)}
   header .kick{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#E7B79E;margin-bottom:8px}
@@ -46,9 +45,8 @@
     text-decoration:none;white-space:nowrap}
   /* lesson rail */
   .lesson{display:flex;gap:14px;align-items:flex-start;padding:15px 16px;border:1px solid var(--line);
-    border-radius:12px;background:var(--card);margin-bottom:11px}
+    border-radius:12px;background:var(--card);margin-bottom:11px;cursor:default}
   .lesson.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-  .lesson.muted{opacity:.62}
   .lnum{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
     justify-content:center;font-family:Georgia,serif;font-weight:700;font-size:16px;
     background:var(--accent-soft);color:var(--deep)}
@@ -61,17 +59,21 @@
   .b-done{background:var(--done-soft);color:var(--done)}
   .b-up{background:var(--stripe);color:var(--deep)}
   .b-open{background:#F0E7D9;color:var(--soft)}
-  .b-lock{background:#efe9df;color:var(--muted)}
-  .slotpanel{margin-top:6px}
-  .slots{display:grid;gap:9px}
-  .daygroup{margin-bottom:12px}
-  .daygroup .dh{font-family:Georgia,serif;font-size:14.5px;font-weight:600;margin:0 0 7px}
-  .slot{display:flex;justify-content:space-between;align-items:center;width:100%;
-    padding:11px 14px;border:1px solid var(--line);background:#fff;border-radius:10px;
-    cursor:pointer;text-align:left;font-size:14.5px}
-  .slot:hover{border-color:var(--accent)}
-  .slot.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .slot .hk{font-size:12px;opacity:.82}
+  /* slot grid */
+  .legend{font-size:12px;color:var(--muted);margin:2px 0 10px}
+  .gwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
+  table.tgrid{border-collapse:separate;border-spacing:0;width:100%;min-width:330px}
+  .tgrid th{font-size:11px;color:var(--muted);font-weight:700;text-align:center;padding:4px 2px;white-space:nowrap}
+  .tgrid th .hk{display:block;font-weight:400;font-size:10px;opacity:.72}
+  .tgrid td{padding:0}
+  .tgrid td.daycol{font-size:12.5px;font-weight:600;color:var(--soft);white-space:nowrap;padding-right:8px}
+  .tgrid td.daycol .wd{display:block;font-weight:400;font-size:10px;color:var(--muted)}
+  .cell{display:flex;align-items:center;justify-content:center;height:38px;margin:3px;border:1px solid var(--line);
+    border-radius:8px;font-size:15px;background:#fff;user-select:none}
+  .cell.free{cursor:pointer;color:var(--accent);font-weight:700}
+  .cell.free:hover{background:var(--accent-soft);border-color:var(--accent)}
+  .cell.taken{background:#f4efe6;border-style:dashed;color:#c2b6a2;font-size:13px}
+  .cell.mine{cursor:pointer;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;font-size:12.5px}
   .panelhead{font-size:13.5px;color:var(--soft);margin:2px 0 12px;background:var(--stripe);
     padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
   .ok{text-align:center;padding:20px 0}
@@ -100,7 +102,7 @@
       </div>
     </div>
 
-    <!-- new: course intro + name + email -->
+    <!-- new: course intro -->
     <div class="card" id="introcard">
       <h3 style="font-size:18px;margin-bottom:10px">關於呢個課程 · About the course</h3>
       <p style="margin:0 0 9px;font-size:14.5px"><b>背景：</b>AI agent 已經唔再淨係識傾偈 —— 佢可以幫你收 email、做資料搜集、寫嘢、駁工具、自動化你嘅日常。</p>
@@ -132,18 +134,17 @@
       <button class="cta" id="startnew" disabled>睇課程 · See the 5 lessons →</button>
     </div>
 
-    <!-- lesson rail -->
+    <!-- lesson rail + grid -->
     <div id="rail" class="hide">
       <div class="card">
         <div id="welcome" class="panelhead hide"></div>
         <div id="lessons"></div>
       </div>
 
-      <!-- slot picker (revealed when a lesson is chosen) -->
-      <div class="card hide" id="bookcard">
-        <div class="panelhead" id="bookhead"></div>
-        <label>揀時段 / Choose a slot</label>
-        <div id="slots" class="slots"><p class="muted-t">載入緊… Loading…</p></div>
+      <div class="card" id="gridcard">
+        <label>揀時段 / Pick your times</label>
+        <div id="gridhint" class="hint" style="margin-bottom:10px">先撳上面一堂，再喺下面個格揀時間。可以一次過揀幾堂，最後一個掣 confirm。</div>
+        <div id="grid"><p class="muted-t">載入緊… Loading…</p></div>
         <div id="feenote" class="hide" style="margin-top:13px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">
           💳 <b>學費 · Course fee：HK$1,000</b>（全 5 堂 / for all 5 lessons）<br>
           喺<b>最後一堂</b>先交 —— the fee is paid at your <b>final lesson</b>, not now.
@@ -191,23 +192,27 @@ const LESSONS = [
   {n:4, en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
   {n:5, en:"Autonomy & Guardrails",    zh:"放佢自己行 · 但管得住"},
 ];
+const SLOT_COLS = ["07:30","08:45","10:00","11:15"];
 
 const $ = id => document.getElementById(id);
-const state = { kind:"new", email:"", name:"", lesson:null, action:"book", slot:null, prog:null };
-const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"六",6:"六"};
+const state = { kind:"new", email:"", name:"", prog:null,
+  openSet:new Set(), dates:[], picks:{}, active:null };
+const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"五",6:"六"};
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
-function fmtDate(iso){ const [y,m,d]=iso.split("-").map(Number);
-  const wd=new Date(Date.UTC(y,m-1,d)).getUTCDay(); return `${m}月${d}日 · 星期${WD[wd]} · ${iso}`; }
+const hkOf = uk => { const [h,m]=uk.split(":").map(Number);
+  return String((h+7)%24).padStart(2,"0")+":"+String(m).padStart(2,"0"); };
 function fmtShort(iso,uk){ const [,m,d]=iso.split("-").map(Number); return `${m}月${d}日 · UK ${uk}`; }
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 async function sha256(s){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+const actionFor = n => ((state.prog||[]).find(x=>x.n===n)||{}).status==="upcoming" ? "reschedule":"book";
 
 // ── kind toggle ──
 $("kind").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
-  state.kind = b.dataset.kind;
+  state.kind = b.dataset.kind; state.picks={}; state.active=null;
   [...$("kind").children].forEach(x=>x.classList.toggle("on", x===b));
-  $("rail").classList.add("hide"); $("bookcard").classList.add("hide");
+  $("rail").classList.add("hide");
   $("lookupcard").classList.toggle("hide", state.kind!=="existing");
   $("introcard").classList.toggle("hide", state.kind!=="new");
   $("newcard").classList.toggle("hide", state.kind!=="new");
@@ -227,12 +232,11 @@ $("lookup").addEventListener("click", async () => {
   if(!rec){
     $("lerr").innerHTML='搵唔到呢個 email 喎 🤔 你可能係<b>新生</b>，或者 email 打錯咗。'+
       '<br><button class="ghost" id="gonew" style="margin-top:10px">我係新生 →</button>';
-    $("lerr").style.display="block"; $("gonew").onclick=()=>$("kind").children[1].click(); return;
+    $("lerr").style.display="block"; $("gonew").onclick=()=>$("kind").children[0].click(); return;
   }
-  state.prog = rec.lessons;
-  $("welcome").innerHTML = `歡迎返嚟 👋　你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀一堂約位或者改期：`;
-  $("welcome").classList.remove("hide");
-  renderRail(rec.lessons); openRail();
+  state.prog = rec.lessons; state.picks={}; state.active=null;
+  $("welcome").innerHTML = `歡迎返嚟 👋　你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀堂約位或者改期（可以一次過揀多堂）：`;
+  $("welcome").classList.remove("hide"); openRail();
 });
 function showLerr(m){ $("lerr").textContent=m; $("lerr").style.display="block"; }
 
@@ -240,34 +244,39 @@ function showLerr(m){ $("lerr").textContent=m; $("lerr").style.display="block"; 
 $("startnew").addEventListener("click", () => {
   state.name = $("nname").value.trim();
   state.email = $("nemail").value.trim().toLowerCase();
-  state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));   // nothing booked yet
-  $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間（每堂都可以獨立預約）：`
-    + `<div style="margin-top:11px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">`
-    + `💳 <b>學費 · Course fee：HK$1,000</b>（全 5 堂 / all 5 lessons）—— 喺<b>最後一堂</b>先交,而家唔使俾。Paid at your final lesson.</div>`;
-  $("welcome").classList.remove("hide");
-  renderRail(state.prog); openRail();
+  state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));
+  state.picks={}; state.active=null;
+  $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間 —— 可以一次過揀晒幾堂，最後撳一次 confirm。`;
+  $("welcome").classList.remove("hide"); openRail();
 });
-function openRail(){ $("rail").classList.remove("hide"); $("rail").scrollIntoView({behavior:"smooth",block:"start"}); }
-function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function openRail(){
+  $("rail").classList.remove("hide");
+  $("feenote").classList.toggle("hide", state.kind!=="new");
+  renderRail(); renderGrid(); updateConfirm();
+  $("rail").scrollIntoView({behavior:"smooth",block:"start"});
+}
 
-// ── render lesson rail (every lesson is independently bookable) ──
-function renderRail(lessons){
+// ── lesson rail ──
+function renderRail(){
   const box = $("lessons"); box.innerHTML="";
-  lessons.forEach((L,i) => {
+  (state.prog||[]).forEach(L => {
     const meta = LESSONS[L.n-1];
+    const pick = state.picks[L.n];
     const div = document.createElement("div");
-    div.className = "lesson" + (L.status==="done"?" done":"");
+    div.className = "lesson" + (L.status==="done"?" done":"") + (state.active===L.n?" sel":"");
     let badge="", btn="";
     if(L.status==="done"){
       badge=`<span class="badge b-done">✓ 完成</span>`;
       btn=`<a class="dl" href="decks/lesson${L.n}.pdf" target="_blank" rel="noopener">📄 下載 PDF</a>`;
-    }
-    else if(L.status==="upcoming"){
+    } else if(pick){
+      badge=`<span class="badge b-up">${actionFor(L.n)==="reschedule"?"改去":"已揀"} · ${fmtShort(pick.date,pick.uk)}</span>`;
+      btn=`<button class="ghost" data-clear="${L.n}">取消</button>`;
+    } else if(L.status==="upcoming"){
       badge=`<span class="badge b-up">📅 已約 · ${fmtShort(L.date,L.uk)}</span>`;
-      btn=`<button class="ghost" data-act="reschedule" data-n="${L.n}">改期</button>`;
+      btn=`<button class="ghost" data-pick="${L.n}">改期</button>`;
     } else {
       badge=`<span class="badge b-open">未約</span>`;
-      btn=`<button class="ghost" data-act="book" data-n="${L.n}">約呢堂 →</button>`;
+      btn=`<button class="ghost" data-pick="${L.n}">揀時間 →</button>`;
     }
     div.innerHTML = `<div class="lnum">${L.n}</div><div class="lbody">
       <div class="ltitle">Lesson ${L.n} — ${meta.en}</div>
@@ -275,59 +284,93 @@ function renderRail(lessons){
       <div class="lstate">${badge}${btn}</div></div>`;
     box.appendChild(div);
   });
-  box.querySelectorAll("button[data-n]").forEach(b=>b.onclick=()=>chooseLesson(+b.dataset.n, b.dataset.act));
+  box.querySelectorAll("button[data-pick]").forEach(b=>b.onclick=()=>activate(+b.dataset.pick));
+  box.querySelectorAll("button[data-clear]").forEach(b=>b.onclick=()=>clearPick(+b.dataset.clear));
 }
 
-function chooseLesson(n, act){
-  state.lesson=n; state.action=act; state.slot=null;
-  document.querySelectorAll(".lesson").forEach((el,i)=>el.classList.toggle("sel", i===n-1));
-  const meta = LESSONS[n-1];
-  const cur = (state.prog.find(l=>l.n===n)||{});
-  $("bookhead").innerHTML = act==="reschedule"
-    ? `改期：<b>Lesson ${n} — ${meta.en}</b><br>而家係 ${fmtShort(cur.date,cur.uk)}，揀個新時間 👇`
-    : `約堂：<b>Lesson ${n} — ${meta.en}</b><br>揀個時間 👇`;
-  $("bookcard").classList.remove("hide");
-  $("feenote").classList.toggle("hide", state.kind!=="new");   // fee note for new students only
-  document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
-  $("submit").disabled=true;
-  $("bookcard").scrollIntoView({behavior:"smooth",block:"start"});
+function activate(n){
+  state.active = n;
+  $("gridhint").innerHTML = `而家揀緊 <b>Lesson ${n} — ${esc(LESSONS[n-1].en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
+  renderRail(); renderGrid();
+  $("gridcard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function clearPick(n){
+  delete state.picks[n]; if(state.active===n) state.active=null;
+  renderRail(); renderGrid(); updateConfirm();
 }
 
-// ── load slots ──
-fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
-  const slots=data.slots||[]; const box=$("slots");
-  if(!slots.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
-  const byDay={}; slots.forEach(s=>(byDay[s.date]||=[]).push(s));
-  box.innerHTML="";
-  Object.keys(byDay).sort().forEach(date=>{
-    const g=document.createElement("div"); g.className="daygroup";
-    g.innerHTML=`<div class="dh">${fmtDate(date)}</div>`;
-    const list=document.createElement("div"); list.className="slots";
-    byDay[date].forEach(s=>{
-      const b=document.createElement("button"); b.className="slot";
-      b.innerHTML=`<span>UK ${s.uk}</span><span class="hk">HK ${s.hk}</span>`;
-      b.onclick=()=>{ state.slot=s; document.querySelectorAll(".slot").forEach(x=>x.classList.remove("on"));
-        b.classList.add("on"); $("submit").disabled=!state.slot; };
-      list.appendChild(b);
+// ── slot grid ──
+function renderGrid(){
+  const box = $("grid");
+  if(!state.dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
+  let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗</div>';
+  h += '<div class="gwrap"><table class="tgrid"><thead><tr><th></th>';
+  SLOT_COLS.forEach(uk=>{ h+=`<th>UK ${uk}<span class="hk">HK ${hkOf(uk)}</span></th>`; });
+  h += '</tr></thead><tbody>';
+  state.dates.forEach(date=>{
+    const [,m,d] = date.split("-").map(Number);
+    h += `<tr><td class="daycol">${m}月${d}日<span class="wd">星期六</span></td>`;
+    SLOT_COLS.forEach(uk=>{
+      const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
+      const open = state.openSet.has(date+"|"+uk);
+      let cls="taken", txt="—";
+      if(mineN){ cls="mine"; txt="L"+mineN; }
+      else if(open){ cls="free"; txt="＋"; }
+      h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}">${txt}</div></td>`;
     });
-    g.appendChild(list); box.appendChild(g);
+    h += '</tr>';
   });
-}).catch(()=>$("slots").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>');
+  h += '</tbody></table></div>';
+  box.innerHTML = h;
+  box.querySelectorAll(".cell.free,.cell.mine").forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
+}
 
-// ── submit ──
+function assignCell(date, uk){
+  const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
+  if(mineN){   // tapping your own pick clears it
+    delete state.picks[mineN]; state.active=+mineN;
+    $("gridhint").innerHTML = `Lesson ${mineN} 取消咗 —— 再撳個格揀過，或者撳上面第二堂。`;
+    renderRail(); renderGrid(); updateConfirm(); return;
+  }
+  if(!state.openSet.has(date+"|"+uk)) return;
+  if(!state.active){ $("gridhint").innerHTML = '⚠️ 先撳上面一堂（揀時間 →），再撳個格。'; return; }
+  state.picks[state.active] = {date, uk, hk:hkOf(uk), action:actionFor(state.active)};
+  const justN = state.active; state.active=null;
+  $("gridhint").innerHTML = `✓ Lesson ${justN} 揀咗 <b>${fmtShort(date,uk)}</b>。仲想揀第二堂就撳上面嗰堂；揀完就撳下面確認。`;
+  renderRail(); renderGrid(); updateConfirm();
+}
+
+function updateConfirm(){
+  const n = Object.keys(state.picks).length;
+  $("submit").disabled = n===0;
+  $("submit").textContent = n ? `確認預約 · Confirm（${n} 堂）` : "確認預約 · Confirm";
+}
+
+// ── load open slots ──
+fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
+  const slots = data.slots||[];
+  state.openSet = new Set(slots.map(s=>s.date+"|"+s.uk));
+  state.dates = [...new Set(slots.map(s=>s.date))].sort();
+  if(!$("rail").classList.contains("hide")) renderGrid();
+}).catch(()=>{ $("grid").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>'; });
+
+// ── batch submit (ONE confirm for all picked lessons) ──
 $("submit").addEventListener("click", async () => {
-  if(!state.slot||!state.lesson) return;
+  const entries = Object.entries(state.picks);
+  if(!entries.length) return;
   $("submit").disabled=true; $("err").style.display="none";
+  const note = $("note").value.trim().slice(0,500);
   try{
-    await addDoc(collection(db,"teach_bookings"), {
-      kind: state.kind, action: state.action, lesson: state.lesson,
-      slot_date: state.slot.date, slot_uk: state.slot.uk, slot_hk: state.slot.hk,
-      name: state.kind==="new" ? state.name : "",
-      email: state.email, note: $("note").value.trim().slice(0,500),
+    await Promise.all(entries.map(([n,p])=>addDoc(collection(db,"teach_bookings"), {
+      kind: state.kind, action: p.action, lesson: +n,
+      slot_date: p.date, slot_uk: p.uk, slot_hk: p.hk,
+      name: state.kind==="new" ? state.name : "", email: state.email, note,
       status: "pending", created: serverTimestamp(), ua: navigator.userAgent.slice(0,120)
-    });
-    $("donetitle").textContent = state.action==="reschedule" ? "改期收到喇！" : "預約收到喇！";
-    $("donemsg").textContent = `Lesson ${state.lesson} · ${fmtDate(state.slot.date)} · UK ${state.slot.uk} / HK ${state.slot.hk}`;
+    })));
+    const lines = entries.sort((a,b)=>a[0]-b[0])
+      .map(([n,p])=>`Lesson ${n} · ${fmtShort(p.date,p.uk)} / HK ${p.hk}`).join("<br>");
+    $("donetitle").textContent = "預約收到喇！";
+    $("donemsg").innerHTML = `你揀咗 <b>${entries.length}</b> 堂：<br>${lines}`;
     $("app").style.display="none"; $("done").style.display="block";
     window.scrollTo({top:0,behavior:"smooth"});
   }catch(e){
