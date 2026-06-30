@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-30T08:10+01:00",
+  "generated": "2026-06-30T08:16+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -83,8 +83,8 @@
         {
           "n": 4,
           "status": "upcoming",
-          "date": "2026-08-01",
-          "uk": "10:00"
+          "date": "2026-07-18",
+          "uk": "07:30"
         },
         {
           "n": 5,
