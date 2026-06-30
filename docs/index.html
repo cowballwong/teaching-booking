@@ -252,8 +252,9 @@ $("startnew").addEventListener("click", async () => {
   const rec = students[await sha256(state.email)];
   if(rec){
     state.kind = "existing";
+    state.name = "";   // existing student resolved by email — never carry the typed (possibly wrong) name
     state.prog = rec.lessons;
-    $("welcome").innerHTML = `${esc(state.name)}，你個 email 已經報咗名喇 👋 幫你切返「現有學生」版面 —— 你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀未約嘅堂約位，或者改期就得（唔使再當新生重新 book）。`;
+    $("welcome").innerHTML = `你個 email 已經報咗名喇 👋 幫你切返「現有學生」版面 —— 你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀未約嘅堂約位，或者改期就得（唔使再當新生重新 book）。`;
     $("welcome").classList.remove("hide"); openRail(); return;
   }
   state.kind = "new";
