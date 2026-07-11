@@ -192,10 +192,28 @@ const LESSONS = [
   {n:4, en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
   {n:5, en:"Autonomy & Guardrails",    zh:"放佢自己行 · 但管得住"},
 ];
+// Per-student course override, keyed by sha256(lowercased email). Students not
+// listed here fall back to LESSONS + the generic decks/lessonN.pdf — unchanged.
+const OVERRIDES = {
+  // Kenny Pig — bespoke pastor "Claude Desktop" course (own decks in decks/kenny/)
+  "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": {
+    deckDir: "decks/kenny/",
+    titles: [
+      {en:"AI Agent Concepts", zh:"AI Agent 概念入門"},
+      {en:"App UI + Project",  zh:"介面導覽 + 建立牧養 Project"},
+      {en:"Cowork · Basic",    zh:"Cowork 基礎 + 工作資料夾"},
+      {en:"Cowork · Advance",  zh:"Cowork 進階 · 自動化"},
+      {en:"Claude Code",       zh:"Claude Code · 牧養 Dashboard"},
+    ],
+  },
+};
+const metaOf = n => (state.override && state.override.titles[n-1]) || LESSONS[n-1];
+const deckOf = n => (state.override ? state.override.deckDir + "class" + n + ".pdf"
+                                    : "decks/lesson" + n + ".pdf");
 const SLOT_COLS = ["07:30","08:45","10:00","11:15"];
 
 const $ = id => document.getElementById(id);
-const state = { kind:"new", email:"", name:"", prog:null,
+const state = { kind:"new", email:"", name:"", prog:null, override:null,
   openSet:new Set(), dates:[], picks:{}, active:null };
 const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"五",6:"六"};
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
@@ -228,12 +246,14 @@ $("lookup").addEventListener("click", async () => {
   if(!emailOk(email)){ showLerr("請入一個有效 email。"); return; }
   state.email = email;
   let students={}; try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }catch(e){}
-  const rec = students[await sha256(email)];
+  const hash = await sha256(email);
+  const rec = students[hash];
   if(!rec){
     $("lerr").innerHTML='搵唔到呢個 email 喎 🤔 你可能係<b>新生</b>，或者 email 打錯咗。'+
       '<br><button class="ghost" id="gonew" style="margin-top:10px">我係新生 →</button>';
     $("lerr").style.display="block"; $("gonew").onclick=()=>$("kind").children[0].click(); return;
   }
+  state.override = OVERRIDES[hash] || null;
   state.prog = rec.lessons; state.picks={}; state.active=null;
   $("welcome").innerHTML = `歡迎返嚟 👋　你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀堂約位或者改期（可以一次過揀多堂）：`;
   $("welcome").classList.remove("hide"); openRail();
@@ -249,15 +269,17 @@ $("startnew").addEventListener("click", async () => {
   // as "new" (would show blank lessons → duplicate/clashing bookings). Quietly
   // switch them into the existing-student view with their REAL progress.
   let students={}; try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }catch(e){}
-  const rec = students[await sha256(state.email)];
+  const nhash = await sha256(state.email);
+  const rec = students[nhash];
   if(rec){
     state.kind = "existing";
     state.name = "";   // existing student resolved by email — never carry the typed (possibly wrong) name
+    state.override = OVERRIDES[nhash] || null;
     state.prog = rec.lessons;
     $("welcome").innerHTML = `你個 email 已經報咗名喇 👋 幫你切返「現有學生」版面 —— 你已完成 <b>${rec.done} / ${rec.total}</b> 堂。揀未約嘅堂約位，或者改期就得（唔使再當新生重新 book）。`;
     $("welcome").classList.remove("hide"); openRail(); return;
   }
-  state.kind = "new";
+  state.kind = "new"; state.override = null;
   state.prog = LESSONS.map(l=>({n:l.n, status:"open"}));
   $("welcome").innerHTML = `${esc(state.name)}，歡迎！揀你想 book 嘅堂同時間 —— 可以一次過揀晒幾堂，最後撳一次 confirm。`;
   $("welcome").classList.remove("hide"); openRail();
@@ -273,14 +295,14 @@ function openRail(){
 function renderRail(){
   const box = $("lessons"); box.innerHTML="";
   (state.prog||[]).forEach(L => {
-    const meta = LESSONS[L.n-1];
+    const meta = metaOf(L.n);
     const pick = state.picks[L.n];
     const div = document.createElement("div");
     div.className = "lesson" + (L.status==="done"?" done":"") + (state.active===L.n?" sel":"");
     let badge="", btn="";
     if(L.status==="done"){
       badge=`<span class="badge b-done">✓ 完成</span>`;
-      btn=`<a class="dl" href="decks/lesson${L.n}.pdf" target="_blank" rel="noopener">📄 下載 PDF</a>`;
+      btn=`<a class="dl" href="${deckOf(L.n)}" target="_blank" rel="noopener">📄 下載 PDF</a>`;
     } else if(pick){
       badge=`<span class="badge b-up">${actionFor(L.n)==="reschedule"?"改去":"已揀"} · ${fmtShort(pick.date,pick.uk)}</span>`;
       btn=`<button class="ghost" data-clear="${L.n}">取消</button>`;
@@ -303,7 +325,7 @@ function renderRail(){
 
 function activate(n){
   state.active = n;
-  $("gridhint").innerHTML = `而家揀緊 <b>Lesson ${n} — ${esc(LESSONS[n-1].en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
+  $("gridhint").innerHTML = `而家揀緊 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
   renderRail(); renderGrid();
   $("gridcard").scrollIntoView({behavior:"smooth",block:"start"});
 }
