@@ -314,6 +314,11 @@ function openRail(){
   $("feenote").classList.toggle("hide", state.kind!=="new");
   renderRail(); renderGrid(); updateConfirm();
   $("rail").scrollIntoView({behavior:"smooth",block:"start"});
+  // Re-pull the slots the moment the grid is actually shown — the page may have
+  // been sitting open since before someone else booked (or before this student's
+  // own booking landed). Re-render when it arrives; the grid is already up so the
+  // student never waits on it.
+  loadSlots().then(()=>{ if(!$("rail").classList.contains("hide")) renderGrid(); });
 }
 
 // ── lesson rail ──
@@ -411,15 +416,25 @@ function updateConfirm(){
 }
 
 // ── load open slots ──
-fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
+// MUST be re-callable, not a one-shot at page load. The grid used to be fetched
+// once when the script ran, so a tab left open for a while showed a stale grid —
+// slots someone had since taken still rendered as free (double-book risk), and
+// a student's own just-made booking still looked open. Meanwhile the rail was
+// fresh (student-progress.json is fetched on login), so the same screen showed
+// new data on top and old data underneath. Now openRail() refreshes it first.
+function loadSlots(){
+  return fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
   const slots = data.slots||[];
   state.openSet = new Set(slots.map(s=>s.date+"|"+s.uk));
   state.dates = [...new Set(slots.map(s=>s.date))].sort();
+  hkMap.clear();
   slots.forEach(s=>{ if(s.hk) hkMap.set(s.date+"|"+s.uk, s.hk); });
   // Adopt any slot time the server offers (e.g. 06:15) without a code change here.
   SLOT_COLS = [...new Set([...BASE_COLS, ...slots.map(s=>s.uk)])].sort();
   if(!$("rail").classList.contains("hide")) renderGrid();
-}).catch(()=>{ $("grid").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>'; });
+  }).catch(()=>{ $("grid").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>'; });
+}
+loadSlots();
 
 // ── batch submit (ONE confirm for all picked lessons) ──
 $("submit").addEventListener("click", async () => {
