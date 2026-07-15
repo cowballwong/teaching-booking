@@ -112,20 +112,26 @@ def load_taken():
     return taken
 
 def load_manual_blocks():
-    """Saturdays Anzon explicitly cancelled / is away (blocked_dates.json) — these
-    stay closed regardless of calendar markers (AL/LD don't auto-block)."""
+    """blocked_dates.json -> (blocked, forced_open).
+      blocked     — Saturdays Anzon cancelled / is away; closed regardless of what
+                    the calendar says (AL/LD don't auto-block).
+      forced_open — the INVERSE: a UK Family event covers the day but Anzon can
+                    still teach through it (e.g. staying at a relative's — he just
+                    teaches from there). Beats the calendar block. `blocked` wins.
+    """
     try:
         data = json.loads(Path(XLSX).parent.joinpath("blocked_dates.json").read_text(encoding="utf-8"))
-        return {b["date"] for b in data.get("blocked", []) if b.get("date")}
+        return ({b["date"] for b in data.get("blocked", []) if b.get("date")},
+                {b["date"] for b in data.get("open", []) if b.get("date")})
     except Exception:
-        return set()
+        return set(), set()
 
 def main():
     start = today()
     sats = saturdays(start, WEEKS)
     end = sats[-1] + dt.timedelta(days=1)
     blocking, flags = load_blocking_and_flags(start, end)
-    manual_blocked = load_manual_blocks()
+    manual_blocked, forced_open = load_manual_blocks()
     taken = load_taken()
     open_slots, all_flags = [], []
     for day in sats:
@@ -133,7 +139,7 @@ def main():
             continue
         if day.isoformat() in manual_blocked:   # explicitly cancelled / away
             continue
-        if day_block(day, blocking):
+        if day_block(day, blocking) and day.isoformat() not in forced_open:
             continue
         for uk in SLOTS_UK:
             if (day.isoformat(), uk) in taken:

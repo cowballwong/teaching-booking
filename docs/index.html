@@ -210,15 +210,34 @@ const OVERRIDES = {
 const metaOf = n => (state.override && state.override.titles[n-1]) || LESSONS[n-1];
 const deckOf = n => (state.override ? state.override.deckDir + "class" + n + ".pdf"
                                     : "decks/lesson" + n + ".pdf");
-const SLOT_COLS = ["07:30","08:45","10:00","11:15"];
+// Grid columns are DERIVED from open-slots.json — never hardcode the slot times
+// here. build_slots.py (SLOTS_UK) is the single source of truth; a hardcoded copy
+// silently hides any newly-added time (06:15 was invisible here for exactly that
+// reason). BASE_COLS only fixes the grid's shape so the familiar columns still
+// render when they're fully booked; anything the json offers is unioned in.
+const BASE_COLS = ["06:15","07:30","08:45","10:00","11:15"];
+let SLOT_COLS = BASE_COLS.slice();
+// "date|uk" -> exact HK time as computed server-side (DST-correct per date).
+const hkMap = new Map();
 
 const $ = id => document.getElementById(id);
 const state = { kind:"new", email:"", name:"", prog:null, override:null,
   openSet:new Set(), dates:[], picks:{}, active:null };
 const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"五",6:"六"};
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+// ⚠️ UK+7 is only true during BST. The UK clocks go back on the last Sunday of
+// October, after which HK is UK+8. NEVER use this for a slot we know the date of
+// — use hkAt(date,uk), which reads the server-computed, DST-correct time out of
+// open-slots.json. This stays only as a last-resort fallback for a cell the json
+// has no entry for (i.e. an already-taken slot, which is never submitted).
 const hkOf = uk => { const [h,m]=uk.split(":").map(Number);
   return String((h+7)%24).padStart(2,"0")+":"+String(m).padStart(2,"0"); };
+const hkAt = (date,uk) => hkMap.get(date+"|"+uk) || hkOf(uk);
+// Column header HK time = whatever the first date offering that slot resolves to.
+const hkHdr = uk => { for(const d of state.dates){ const v=hkMap.get(d+"|"+uk); if(v) return v; } return hkOf(uk); };
+// True when this date's HK offset differs from the header's (i.e. after the UK
+// clock change) — the row gets a badge so nobody books thinking it's an hour earlier.
+const hkShifted = date => SLOT_COLS.some(uk=>{ const v=hkMap.get(date+"|"+uk); return v && v!==hkHdr(uk); });
 function fmtShort(iso,uk){ const [,m,d]=iso.split("-").map(Number); return `${m}月${d}日 · UK ${uk}`; }
 function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 async function sha256(s){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
@@ -340,22 +359,26 @@ function renderGrid(){
   if(!state.dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
   let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗</div>';
   h += '<div class="gwrap"><table class="tgrid"><thead><tr><th></th>';
-  SLOT_COLS.forEach(uk=>{ h+=`<th>UK ${uk}<span class="hk">HK ${hkOf(uk)}</span></th>`; });
+  SLOT_COLS.forEach(uk=>{ h+=`<th>UK ${uk}<span class="hk">HK ${hkHdr(uk)}</span></th>`; });
   h += '</tr></thead><tbody>';
+  let anyShift = false;
   state.dates.forEach(date=>{
     const [,m,d] = date.split("-").map(Number);
-    h += `<tr><td class="daycol">${m}月${d}日<span class="wd">星期六</span></td>`;
+    const shifted = hkShifted(date);
+    if(shifted) anyShift = true;
+    h += `<tr><td class="daycol">${m}月${d}日<span class="wd">星期六${shifted?' · HK +1h ⏰':''}</span></td>`;
     SLOT_COLS.forEach(uk=>{
       const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
       const open = state.openSet.has(date+"|"+uk);
       let cls="taken", txt="—";
       if(mineN){ cls="mine"; txt="L"+mineN; }
       else if(open){ cls="free"; txt="＋"; }
-      h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}">${txt}</div></td>`;
+      h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}" title="UK ${uk} · HK ${hkAt(date,uk)}">${txt}</div></td>`;
     });
     h += '</tr>';
   });
   h += '</tbody></table></div>';
+  if(anyShift) h += '<p class="muted-t" style="font-size:12px;margin-top:8px">⏰ 英國 10月25日轉冬令時間，之後香港時間會晏一個鐘（標住 <b>HK +1h</b> 嗰啲日子）。你揀完之後，確認頁同日曆邀請會顯示準確嘅香港時間。</p>';
   box.innerHTML = h;
   box.querySelectorAll(".cell.free,.cell.mine").forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
 }
@@ -369,7 +392,7 @@ function assignCell(date, uk){
   }
   if(!state.openSet.has(date+"|"+uk)) return;
   if(!state.active){ $("gridhint").innerHTML = '⚠️ 先撳上面一堂（揀時間 →），再撳個格。'; return; }
-  state.picks[state.active] = {date, uk, hk:hkOf(uk), action:actionFor(state.active)};
+  state.picks[state.active] = {date, uk, hk:hkAt(date,uk), action:actionFor(state.active)};
   const justN = state.active; state.active=null;
   $("gridhint").innerHTML = `✓ Lesson ${justN} 揀咗 <b>${fmtShort(date,uk)}</b>。仲想揀第二堂就撳上面嗰堂；揀完就撳下面確認。`;
   renderRail(); renderGrid(); updateConfirm();
@@ -386,6 +409,9 @@ fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
   const slots = data.slots||[];
   state.openSet = new Set(slots.map(s=>s.date+"|"+s.uk));
   state.dates = [...new Set(slots.map(s=>s.date))].sort();
+  slots.forEach(s=>{ if(s.hk) hkMap.set(s.date+"|"+s.uk, s.hk); });
+  // Adopt any slot time the server offers (e.g. 06:15) without a code change here.
+  SLOT_COLS = [...new Set([...BASE_COLS, ...slots.map(s=>s.uk)])].sort();
   if(!$("rail").classList.contains("hide")) renderGrid();
 }).catch(()=>{ $("grid").innerHTML='<p class="muted-t">載入失敗，請 refresh。</p>'; });
 
