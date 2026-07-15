@@ -1,7 +1,7 @@
 """build_slots.py — generate the PUBLIC open-slots.json for the booking page.
 
-Calendar-aware: opens the 4 Saturday slots (UK 07:30/08:45/10:00/11:15) for the
-next ~2 months, MINUS (a) slots already booked in the Excel master, (b) days
+Calendar-aware: opens the 5 Saturday slots (UK 06:15/07:30/08:45/10:00/11:15) for
+the next ~4 months, MINUS (a) slots already booked in the Excel master, (b) days
 covered by a BLOCKING UK Family event. Blocking rule (learned from Anzon):
   • all-day OR multi-day (spans >1 calendar day) event -> BLOCK the whole day
     (trips / annual leave / school camping — family genuinely away)
@@ -17,17 +17,23 @@ sys.stdout.reconfigure(encoding="utf-8")
 from zoneinfo import ZoneInfo
 from pathlib import Path
 LON = ZoneInfo("Europe/London")
+HKG = ZoneInfo("Asia/Hong_Kong")
 sys.path.insert(0, r"G:/My Drive/AI_Development/06_shared/07_browser/scripts")
 import openpyxl
 
-WEEKS = 9                                   # ~2 months of Saturdays
-SLOTS_UK = ["07:30", "08:45", "10:00", "11:15"]
+WEEKS = 16                                  # through end of Oct (Anzon, 2026-07-15)
+SLOTS_UK = ["06:15", "07:30", "08:45", "10:00", "11:15"]
 IRIS_MARKERS = {"al", "ld"}                 # Iris leave / work — never block teaching
 OUT = Path(__file__).parent / "docs" / "open-slots.json"
 XLSX = r"G:/My Drive/AI_Development/02_freelance/03_ai-teaching/students/attendance.xlsx"
 
-def hk(uk):
-    h, m = map(int, uk.split(":")); return f"{(h+7)%24:02d}:{m:02d}"
+def hk(uk, day):
+    """UK local -> HK local for THAT date. Must be date-aware: HK is UK+7 during
+    BST but UK+8 once the UK clocks go back (last Sun of Oct — 2026-10-25), so a
+    hardcoded +7 silently shows HK students the wrong time for late-Oct slots."""
+    h, m = map(int, uk.split(":"))
+    return (dt.datetime(day.year, day.month, day.day, h, m, tzinfo=LON)
+            .astimezone(HKG).strftime("%H:%M"))
 
 def today():
     # plain script (not a workflow) — real date is fine here
@@ -137,11 +143,11 @@ def main():
                 all_flags += fl
                 continue  # has a same-day event overlap -> hold back, let Anzon decide
             open_slots.append({"date": day.isoformat(), "weekday": "Sat",
-                               "uk": uk, "hk": hk(uk)})
+                               "uk": uk, "hk": hk(uk, day)})
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({
         "generated": dt.datetime.now(LON).isoformat(timespec="minutes"),
-        "tz_note": "UK = Europe/London; HK = UK+7 (BST)",
+        "tz_note": "UK = Europe/London; HK = Asia/Hong_Kong (UK+7 in BST, UK+8 in GMT) — computed per slot date",
         "slots": open_slots,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"✅ wrote {len(open_slots)} open slots over {WEEKS} Saturdays -> {OUT}")
