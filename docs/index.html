@@ -264,12 +264,18 @@ $("lookup").addEventListener("click", async () => {
   const email = $("lemail").value.trim().toLowerCase();
   if(!emailOk(email)){ showLerr("請入一個有效 email。"); return; }
   state.email = email;
-  let students={}; try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }catch(e){}
+  // Load the roster BEFORE deciding anything. A failed fetch must NOT fall through
+  // to the "未登記" branch — that would tell a genuine student they aren't
+  // registered when the real cause is the file not loading.
+  let students;
+  try{ students=(await (await fetch("student-progress.json?cb="+Date.now())).json()).students||{}; }
+  catch(e){ showLerr("一時載入唔到學員資料，請 refresh 再試一次。"); return; }
   const hash = await sha256(email);
   const rec = students[hash];
   if(!rec){
-    $("lerr").innerHTML='搵唔到呢個 email 喎 🤔 你可能係<b>新生</b>，或者 email 打錯咗。'+
-      '<br><button class="ghost" id="gonew" style="margin-top:10px">我係新生 →</button>';
+    $("lerr").innerHTML='⚠️ <b>呢個學員未登記</b><br>'+
+      '<span class="muted-t">'+esc(email)+' 唔喺學員名單度。可能係 email 打錯咗，或者你仲未報過名。</span>'+
+      '<br><button class="ghost" id="gonew" style="margin-top:10px">我係新生 · 立即報名 →</button>';
     $("lerr").style.display="block"; $("gonew").onclick=()=>$("kind").children[0].click(); return;
   }
   state.override = OVERRIDES[hash] || null;
