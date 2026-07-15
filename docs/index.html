@@ -85,6 +85,22 @@
      it reads as "letting go of", not "still mine". */
   .cell.releasing{background:#f4efe6;border-style:dashed;border-color:var(--line);
     color:#b3a795;font-weight:700;font-size:12.5px;text-decoration:line-through}
+  /* ── Two-column booking view ───────────────────────────────────────────────
+     Lesson list and slot grid side by side, so you can see which lesson you're
+     placing while you pick the cell. Stacked, you had to bounce up and down
+     between them (Anzon: "又上又下彈嚟彈去睇得好辛苦").
+     ONLY above 920px — students are mostly on HK phones, where the single
+     column is still the right layout. The page widens only while the booking
+     view is open (body.railopen), so the landing card stays a comfortable
+     reading width. The lesson list sticks so it stays put while you scroll
+     the long grid. */
+  @media (min-width:920px){
+    body.railopen .wrap{max-width:1180px}
+    body.railopen #rail{display:grid;grid-template-columns:minmax(320px,36%) 1fr;
+      gap:18px;align-items:start}
+    body.railopen #rail > .card{margin-bottom:0}
+    body.railopen #rail > .card:first-child{position:sticky;top:14px}
+  }
   .panelhead{font-size:13.5px;color:var(--soft);margin:2px 0 12px;background:var(--stripe);
     padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
   .ok{text-align:center;padding:20px 0}
@@ -261,6 +277,7 @@ $("kind").addEventListener("click", e => {
   state.kind = b.dataset.kind; state.picks={}; state.active=null;
   [...$("kind").children].forEach(x=>x.classList.toggle("on", x===b));
   $("rail").classList.add("hide");
+  document.body.classList.remove("railopen");   // back to the narrow landing width
   $("lookupcard").classList.toggle("hide", state.kind!=="existing");
   $("introcard").classList.toggle("hide", state.kind!=="new");
   $("newcard").classList.toggle("hide", state.kind!=="new");
@@ -322,6 +339,7 @@ $("startnew").addEventListener("click", async () => {
 });
 function openRail(){
   $("rail").classList.remove("hide");
+  document.body.classList.add("railopen");   // widens the page into two columns >=920px
   $("feenote").classList.toggle("hide", state.kind!=="new");
   renderRail(); renderGrid(); updateConfirm();
   $("rail").scrollIntoView({behavior:"smooth",block:"start"});
@@ -364,6 +382,11 @@ function renderRail(){
   box.querySelectorAll("button[data-clear]").forEach(b=>b.onclick=()=>clearPick(+b.dataset.clear));
 }
 
+// Matches the @media (min-width:920px) rule that turns the booking view into
+// two columns — keep the number in sync with the CSS.
+const twoCol = () => window.matchMedia("(min-width:920px)").matches
+                   && document.body.classList.contains("railopen");
+
 function activate(n){
   state.active = n;
   // Rescheduling reads differently from a first booking — say what happens to
@@ -373,7 +396,10 @@ function activate(n){
     ? `而家幫 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> 改期 —— 原本 <b>${fmtShort(old.date, old.uk)}</b> 已經變灰，揀個新時段就會放返出嚟。`
     : `而家揀緊 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
   renderRail(); renderGrid();
-  $("gridcard").scrollIntoView({behavior:"smooth",block:"start"});
+  // Only jump to the grid when it's stacked below the lesson list. In the
+  // two-column layout the grid is already beside you, so scrolling would move
+  // the page for no reason — the jumping is the thing we're removing.
+  if(!twoCol()) $("gridcard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function clearPick(n){
   delete state.picks[n]; if(state.active===n) state.active=null;
