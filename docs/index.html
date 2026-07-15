@@ -74,6 +74,12 @@
   .cell.free:hover{background:var(--accent-soft);border-color:var(--accent)}
   .cell.taken{background:#f4efe6;border-style:dashed;color:#c2b6a2;font-size:13px}
   .cell.mine{cursor:pointer;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;font-size:12.5px}
+  /* A lesson this student has ALREADY booked (from student-progress.json), as
+     opposed to .mine which is a pick in this session. Cinema-app rule: you must
+     be able to see your own seats — without this they rendered as .taken and
+     looked identical to someone else's booking. */
+  .cell.booked{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);
+    border-style:solid;font-weight:700;font-size:12.5px}
   .panelhead{font-size:13.5px;color:var(--soft);margin:2px 0 12px;background:var(--stripe);
     padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
   .ok{text-align:center;padding:20px 0}
@@ -365,26 +371,52 @@ function clearPick(n){
 }
 
 // ── slot grid ──
+// "date|uk" -> lesson number the student has ALREADY booked (not a pick in this
+// session). Comes from student-progress.json, which carries date+uk for upcoming
+// lessons. Without this the grid renders their own booking as a generic "—", so
+// a student can't tell their own lessons from someone else's — the whole point
+// of a seat map. (Anzon: "好似電影院揀位嘅app咁".)
+function bookedByMe(){
+  const m = new Map();
+  (state.prog || []).forEach(x => {
+    if (x.date && x.uk) m.set(x.date + "|" + x.uk, x.n);
+  });
+  return m;
+}
+// Rows to draw = every date with an open slot, PLUS every date this student
+// already has a lesson on. A fully-booked Saturday has no open slots, so it
+// would otherwise vanish from the grid — taking their own booking with it.
+function gridDates(mine){
+  return [...new Set([...state.dates, ...[...mine.keys()].map(k => k.split("|")[0])])].sort();
+}
 function renderGrid(){
   const box = $("grid");
-  if(!state.dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
-  let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗</div>';
+  const mine = bookedByMe();
+  const dates = gridDates(mine);
+  if(!dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
+  let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗'
+        + (mine.size ? '　<span style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你已約' : '')
+        + '</div>';
   h += '<div class="gwrap"><table class="tgrid"><thead><tr><th></th>';
   SLOT_COLS.forEach(uk=>{ h+=`<th>UK ${uk}<span class="hk">HK ${hkHdr(uk)}</span></th>`; });
   h += '</tr></thead><tbody>';
   let anyShift = false;
-  state.dates.forEach(date=>{
+  dates.forEach(date=>{
     const [,m,d] = date.split("-").map(Number);
     const shifted = hkShifted(date);
     if(shifted) anyShift = true;
     h += `<tr><td class="daycol">${m}月${d}日<span class="wd">星期六${shifted?' · HK +1h ⏰':''}</span></td>`;
     SLOT_COLS.forEach(uk=>{
+      const key = date+"|"+uk;
       const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
-      const open = state.openSet.has(date+"|"+uk);
-      let cls="taken", txt="—";
-      if(mineN){ cls="mine"; txt="L"+mineN; }
+      const bookedN = mine.get(key);
+      const open = state.openSet.has(key);
+      let cls="taken", txt="—", tip=`UK ${uk} · HK ${hkAt(date,uk)}`;
+      if(mineN){ cls="mine"; txt="L"+mineN; }                        // picked just now
+      else if(bookedN){ cls="booked"; txt="L"+bookedN;               // already yours
+                        tip = `你已約咗 Lesson ${bookedN} · ${tip}　（想改期就撳上面嗰堂嘅「改期」）`; }
       else if(open){ cls="free"; txt="＋"; }
-      h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}" title="UK ${uk} · HK ${hkAt(date,uk)}">${txt}</div></td>`;
+      h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}" title="${tip}">${txt}</div></td>`;
     });
     h += '</tr>';
   });
