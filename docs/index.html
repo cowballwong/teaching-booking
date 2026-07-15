@@ -91,6 +91,24 @@
   .cell.freed{cursor:pointer;border-style:dashed;border-color:var(--accent);
     color:var(--accent);font-weight:700;background:transparent}
   .cell.freed:hover{background:var(--accent-soft)}
+  /* Edit switch — the guard that makes moving a booked lesson deliberate. Off,
+     your booked cells are inert (no mis-taps); on, you pick one up and drop it. */
+  .gridtop{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none;margin:0}
+  .switch input{position:absolute;opacity:0;width:0;height:0}
+  .switch .track{width:38px;height:21px;border-radius:99px;background:#DCD2C2;position:relative;
+    transition:background .16s;flex-shrink:0}
+  .switch .knob{position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:99px;
+    background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.22);transition:transform .16s}
+  .switch input:checked + .track{background:var(--accent)}
+  .switch input:checked + .track .knob{transform:translateX(17px)}
+  .switch .swtxt{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:none;letter-spacing:.3px}
+  .switch input:checked ~ .swtxt{color:var(--accent)}
+  /* In edit mode your booked lessons become pick-up-able. */
+  .cell.editable{cursor:pointer}
+  .cell.editable:hover{box-shadow:0 0 0 2px var(--accent)}
+  .cell.holding{background:var(--deep);color:#fff;border-color:var(--deep);
+    font-weight:700;font-size:12.5px;cursor:pointer}
   /* ── Two-column booking view ───────────────────────────────────────────────
      Lesson list and slot grid side by side, so you can see which lesson you're
      placing while you pick the cell. Stacked, you had to bounce up and down
@@ -175,7 +193,13 @@
       </div>
 
       <div class="card" id="gridcard">
-        <label>揀時段 / Pick your times</label>
+        <div class="gridtop">
+          <label style="margin:0">揀時段 / Pick your times</label>
+          <label class="switch hide" id="editwrap" title="開咗之後，可以直接喺下面個表郁你已約嘅堂">
+            <input type="checkbox" id="editmode"><span class="track"><span class="knob"></span></span>
+            <span class="swtxt">改期模式 · Edit</span>
+          </label>
+        </div>
         <div id="gridhint" class="hint" style="margin-bottom:10px">先撳上面一堂，再喺下面個格揀時間。可以一次過揀幾堂，最後一個掣 confirm。</div>
         <div id="grid"><p class="muted-t">載入緊… Loading…</p></div>
         <div id="feenote" class="hide" style="margin-top:13px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">
@@ -255,7 +279,7 @@ const hkMap = new Map();
 
 const $ = id => document.getElementById(id);
 const state = { kind:"new", email:"", name:"", prog:null, override:null,
-  openSet:new Set(), dates:[], picks:{}, active:null };
+  openSet:new Set(), dates:[], picks:{}, active:null, edit:false };
 const WD = {0:"日",1:"一",2:"二",3:"三",4:"四",5:"五",6:"六"};
 const emailOk = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
 // ⚠️ UK+7 is only true during BST. The UK clocks go back on the last Sunday of
@@ -460,9 +484,14 @@ function renderGrid(){
   const mine = bookedByMe();
   const freed = freedByMe();
   const dates = gridDates(mine);
+  // Nothing booked = nothing to reschedule, so don't offer the switch at all
+  // (a new student would just wonder what it's for).
+  $("editwrap").classList.toggle("hide", mine.size === 0);
   if(!dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
   let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗'
         + (mine.size ? '　<span style="background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你已約' : '')
+        + (state.active && mine.has((()=>{const x=(state.prog||[]).find(y=>y.n===state.active&&y.date); return x?x.date+"|"+x.uk:"";})())
+            ? '　<span style="background:var(--deep);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 拎緊' : '')
         + '</div>';
   h += '<div class="gwrap"><table class="tgrid"><thead><tr><th></th>';
   SLOT_COLS.forEach(uk=>{ h+=`<th>UK ${uk}<span class="hk">HK ${hkHdr(uk)}</span></th>`; });
@@ -488,14 +517,16 @@ function renderGrid(){
         tip = `Lesson ${freedN} 走咗 —— 呢個位放咗返出嚟，可以畀第二堂用`;
       }
       else if(bookedN){
-        // Being rescheduled right now but not yet re-placed: still tentatively
-        // yours (click it to put the lesson back), shown as letting-go-of.
-        const releasing = state.active===bookedN;
-        cls = releasing ? "releasing" : "booked";
+        // Held (picked up in edit mode) vs just yours. Holding is deliberately
+        // loud — you're carrying it and the next tap puts it somewhere.
+        const holding = state.active===bookedN;
+        cls = holding ? "holding" : (state.edit ? "booked editable" : "booked");
         txt = "L"+bookedN;
-        tip = releasing
-          ? `Lesson ${bookedN} 改期中 —— 揀個新時段，呢個位就會放返出嚟（撳返呢格 = 唔改，留喺原位）`
-          : `你已約咗 Lesson ${bookedN} · ${tip}　（想改期就撳上面嗰堂嘅「改期」）`;
+        tip = holding
+          ? `✋ 拎緊 Lesson ${bookedN} —— 撳個有位嘅格放低（撳返呢格 = 放低，唔改）`
+          : state.edit
+            ? `Lesson ${bookedN} · ${tip}　（撳一下拎起佢改期）`
+            : `你已約咗 Lesson ${bookedN} · ${tip}　（開「改期模式」就可以直接喺度郁佢）`;
       }
       else if(open){ cls="free"; txt="＋"; }
       h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}" title="${tip}">${txt}</div></td>`;
@@ -507,11 +538,41 @@ function renderGrid(){
   box.innerHTML = h;
   // .freed and .releasing are clickable too: they're my own seats mid-shuffle.
   // Leaving them out is what stopped "move L5, then slide L4 into L5's old slot".
-  box.querySelectorAll(".cell.free,.cell.mine,.cell.freed,.cell.releasing")
+  // .editable/.holding are the edit-mode pick-up targets.
+  box.querySelectorAll(".cell.free,.cell.mine,.cell.freed,.cell.releasing,.cell.editable,.cell.holding")
      .forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
 }
 
+// ── edit mode ──
+// Turning it on lets you move a booked lesson straight from the grid: tap your
+// lesson to pick it up, tap a free cell to drop it. Off by default so a stray
+// tap can't move a real booking. (Anzon's design, 2026-07-15.)
+$("editmode").addEventListener("change", e => {
+  state.edit = e.target.checked;
+  if(!state.edit && state.active && !state.picks[state.active]) state.active = null;  // drop what you're holding
+  $("gridhint").innerHTML = state.edit
+    ? '✏️ <b>改期模式開咗</b> —— 撳你自己一堂（<b style="color:var(--accent)">L#</b>）拎起佢，再撳個有位（<b style="color:var(--accent)">＋</b>）嘅格放低。想順延成個 course 就由最後一堂開始改。'
+    : '先撳上面一堂，再喺下面個格揀時間。可以一次過揀幾堂，最後一個掣 confirm。';
+  renderRail(); renderGrid();
+});
+
 function assignCell(date, uk){
+  const key = date+"|"+uk;
+  // Edit mode: tapping one of your booked lessons picks it up (and tapping the
+  // one you're holding puts it down again).
+  if(state.edit){
+    const bookedN = bookedByMe().get(key);
+    if(bookedN && !state.picks[bookedN]){
+      if(state.active === bookedN){
+        state.active = null;
+        $("gridhint").innerHTML = `放低咗 Lesson ${bookedN} —— 冇改到嘢，佢仲喺原位。`;
+      } else {
+        state.active = bookedN;
+        $("gridhint").innerHTML = `✋ 拎起咗 <b>Lesson ${bookedN}</b>（${fmtShort(date,uk)}）—— 而家撳個有位（<b style="color:var(--accent)">＋</b>）嘅格放低佢。`;
+      }
+      renderRail(); renderGrid(); return;
+    }
+  }
   const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
   if(mineN){   // tapping your own pick clears it
     delete state.picks[mineN]; state.active=+mineN;
