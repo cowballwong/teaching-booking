@@ -80,6 +80,11 @@
      looked identical to someone else's booking. */
   .cell.booked{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);
     border-style:solid;font-weight:700;font-size:12.5px}
+  /* The seat you're giving up: you hit 改期 on this lesson (or already re-picked
+     it elsewhere), so its OLD slot is on its way out. Greyed + struck through so
+     it reads as "letting go of", not "still mine". */
+  .cell.releasing{background:#f4efe6;border-style:dashed;border-color:var(--line);
+    color:#b3a795;font-weight:700;font-size:12.5px;text-decoration:line-through}
   .panelhead{font-size:13.5px;color:var(--soft);margin:2px 0 12px;background:var(--stripe);
     padding:10px 12px;border-radius:9px;border:1px solid var(--line)}
   .ok{text-align:center;padding:20px 0}
@@ -361,7 +366,12 @@ function renderRail(){
 
 function activate(n){
   state.active = n;
-  $("gridhint").innerHTML = `而家揀緊 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
+  // Rescheduling reads differently from a first booking — say what happens to
+  // the seat they're leaving, since it greys out the moment they press 改期.
+  const old = (state.prog||[]).find(x=>x.n===n && x.date && x.uk);
+  $("gridhint").innerHTML = old
+    ? `而家幫 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> 改期 —— 原本 <b>${fmtShort(old.date, old.uk)}</b> 已經變灰，揀個新時段就會放返出嚟。`
+    : `而家揀緊 <b>Lesson ${n} — ${esc(metaOf(n).en)}</b> —— 喺下面撳一個有位（<b style="color:var(--accent)">＋</b>）嘅格。`;
   renderRail(); renderGrid();
   $("gridcard").scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -413,8 +423,17 @@ function renderGrid(){
       const open = state.openSet.has(key);
       let cls="taken", txt="—", tip=`UK ${uk} · HK ${hkAt(date,uk)}`;
       if(mineN){ cls="mine"; txt="L"+mineN; }                        // picked just now
-      else if(bookedN){ cls="booked"; txt="L"+bookedN;               // already yours
-                        tip = `你已約咗 Lesson ${bookedN} · ${tip}　（想改期就撳上面嗰堂嘅「改期」）`; }
+      else if(bookedN){
+        // Grey out the old seat the moment they start moving this lesson —
+        // either it's the one being rescheduled right now, or they've already
+        // re-picked it elsewhere. Either way it's no longer "still yours".
+        const movingAway = state.active===bookedN || !!state.picks[bookedN];
+        cls = movingAway ? "releasing" : "booked";
+        txt = "L"+bookedN;
+        tip = movingAway
+          ? `Lesson ${bookedN} 改期中 —— 揀個新時段，呢個位就會放返出嚟`
+          : `你已約咗 Lesson ${bookedN} · ${tip}　（想改期就撳上面嗰堂嘅「改期」）`;
+      }
       else if(open){ cls="free"; txt="＋"; }
       h += `<td><div class="cell ${cls}" data-date="${date}" data-uk="${uk}" title="${tip}">${txt}</div></td>`;
     });
