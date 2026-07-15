@@ -64,7 +64,12 @@ def load_blocking_and_flags(start, end):
         if len(s) == 10:                          # all-day "YYYY-MM-DD" (DTEND exclusive)
             sd = dt.date.fromisoformat(s)
             ed = dt.date.fromisoformat(en[:10]) if en else sd + dt.timedelta(days=1)
-            blocking.append((sd, ed - dt.timedelta(days=1), summ, "all-day"))
+            # Only MULTI-day all-day events (genuine whole-family trips) block.
+            # Single-day all-day entries (Bank shift, kids' PE, AL/LD) are personal
+            # markers, NOT family-away days — never block teaching. Genuine single-day
+            # cancellations go through blocked_dates.json. (Anzon corrected 2026-06-29.)
+            if (ed - sd).days >= 2:
+                blocking.append((sd, ed - dt.timedelta(days=1), summ, "all-day"))
         else:                                     # timed "YYYY-MM-DD HH:MM:SS+TZ"
             sdt = dt.datetime.fromisoformat(s).astimezone(LON)
             edt = dt.datetime.fromisoformat(en).astimezone(LON) if en else sdt
