@@ -1,9 +1,9 @@
 {
-  "generated": "2026-07-09T08:49+01:00",
+  "generated": "2026-07-15T07:43+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -16,9 +16,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-07-11",
-          "uk": "10:00"
+          "status": "done"
         },
         {
           "n": 4,
@@ -97,7 +95,7 @@
       ]
     },
     "7c395c885b64088f8f64e6a621761eb1257a1b38bf129758b05203fb7fec070f": {
-      "done": 3,
+      "done": 4,
       "total": 5,
       "lessons": [
         {
@@ -114,9 +112,7 @@
         },
         {
           "n": 4,
-          "status": "upcoming",
-          "date": "2026-07-11",
-          "uk": "11:15"
+          "status": "done"
         },
         {
           "n": 5,
@@ -196,14 +192,14 @@
         }
       ]
     },
-    "f13b805ac3b992827cd93622aa955c6e1401be4908e214afb80bcdedd3c21a63": {
+    "1116dd99ebc3f7c8b1ee558c99ad2442bef3f03334deacdbfe93c0da9c13b50b": {
       "done": 0,
       "total": 5,
       "lessons": [
         {
           "n": 1,
           "status": "upcoming",
-          "date": "2026-07-11",
+          "date": "2026-09-05",
           "uk": "07:30"
         },
         {
@@ -261,7 +257,7 @@
       ]
     },
     "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -274,9 +270,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-07-11",
-          "uk": "08:45"
+          "status": "done"
         },
         {
           "n": 4,
