@@ -84,7 +84,13 @@
      it elsewhere), so its OLD slot is on its way out. Greyed + struck through so
      it reads as "letting go of", not "still mine". */
   .cell.releasing{background:#f4efe6;border-style:dashed;border-color:var(--line);
-    color:#b3a795;font-weight:700;font-size:12.5px;text-decoration:line-through}
+    color:#b3a795;font-weight:700;font-size:12.5px;text-decoration:line-through;cursor:pointer}
+  /* A seat I just vacated by moving that lesson elsewhere — back on the market
+     for my other lessons. Dashed accent so it reads as "open, and it was mine",
+     distinct from a plain free slot. */
+  .cell.freed{cursor:pointer;border-style:dashed;border-color:var(--accent);
+    color:var(--accent);font-weight:700;background:transparent}
+  .cell.freed:hover{background:var(--accent-soft)}
   /* ── Two-column booking view ───────────────────────────────────────────────
      Lesson list and slot grid side by side, so you can see which lesson you're
      placing while you pick the cell. Stacked, you had to bounce up and down
@@ -419,6 +425,30 @@ function bookedByMe(){
   });
   return m;
 }
+// Seats I've VACATED this session: a lesson of mine that I've already re-picked
+// somewhere else. Its old seat is mine to give away, so my OTHER lessons must be
+// able to take it — that's the whole "shift every lesson back a week" flow (move
+// L5 first, then L4 into L5's old slot). The server's open-slots.json still lists
+// it as taken (it can't know what I'm doing client-side), so openSet alone would
+// silently refuse the click. Returns "date|uk" -> the lesson that left.
+function freedByMe(){
+  const f = new Map();
+  (state.prog || []).forEach(x => {
+    if (!x.date || !x.uk) return;
+    const p = state.picks[x.n];
+    if (p && (p.date !== x.date || p.uk !== x.uk)) f.set(x.date + "|" + x.uk, x.n);
+  });
+  return f;
+}
+// A cell lesson `n` is allowed to take: genuinely open, or one of my own seats
+// that's been vacated, or n's own original seat (so pressing 改期 by mistake is
+// undoable — you can always put a lesson back where it was).
+function canTake(n, key){
+  if (state.openSet.has(key)) return true;
+  if (freedByMe().has(key)) return true;
+  const own = (state.prog || []).find(x => x.n === n && x.date && x.uk);
+  return !!own && own.date + "|" + own.uk === key;
+}
 // Rows to draw = every date with an open slot, PLUS every date this student
 // already has a lesson on. A fully-booked Saturday has no open slots, so it
 // would otherwise vanish from the grid — taking their own booking with it.
@@ -428,6 +458,7 @@ function gridDates(mine){
 function renderGrid(){
   const box = $("grid");
   const mine = bookedByMe();
+  const freed = freedByMe();
   const dates = gridDates(mine);
   if(!dates.length){ box.innerHTML='<p class="muted-t">暫時冇開放時段，請遲啲再睇。</p>'; return; }
   let h = '<div class="legend"><b style="color:var(--accent)">＋</b> 有位　<span style="color:#c2b6a2">—</span> 冇位　<span style="background:var(--accent);color:#fff;padding:0 6px;border-radius:5px;font-size:11px">L#</span> 你揀咗'
@@ -446,18 +477,24 @@ function renderGrid(){
       const key = date+"|"+uk;
       const mineN = Object.keys(state.picks).find(n=>state.picks[n].date===date && state.picks[n].uk===uk);
       const bookedN = mine.get(key);
+      const freedN = freed.get(key);
       const open = state.openSet.has(key);
       let cls="taken", txt="—", tip=`UK ${uk} · HK ${hkAt(date,uk)}`;
       if(mineN){ cls="mine"; txt="L"+mineN; }                        // picked just now
+      else if(freedN){
+        // I've moved this lesson elsewhere, so its old seat is back on the
+        // market — for MY other lessons. Show it as takeable, not as mine.
+        cls="freed"; txt="＋";
+        tip = `Lesson ${freedN} 走咗 —— 呢個位放咗返出嚟，可以畀第二堂用`;
+      }
       else if(bookedN){
-        // Grey out the old seat the moment they start moving this lesson —
-        // either it's the one being rescheduled right now, or they've already
-        // re-picked it elsewhere. Either way it's no longer "still yours".
-        const movingAway = state.active===bookedN || !!state.picks[bookedN];
-        cls = movingAway ? "releasing" : "booked";
+        // Being rescheduled right now but not yet re-placed: still tentatively
+        // yours (click it to put the lesson back), shown as letting-go-of.
+        const releasing = state.active===bookedN;
+        cls = releasing ? "releasing" : "booked";
         txt = "L"+bookedN;
-        tip = movingAway
-          ? `Lesson ${bookedN} 改期中 —— 揀個新時段，呢個位就會放返出嚟`
+        tip = releasing
+          ? `Lesson ${bookedN} 改期中 —— 揀個新時段，呢個位就會放返出嚟（撳返呢格 = 唔改，留喺原位）`
           : `你已約咗 Lesson ${bookedN} · ${tip}　（想改期就撳上面嗰堂嘅「改期」）`;
       }
       else if(open){ cls="free"; txt="＋"; }
@@ -468,7 +505,10 @@ function renderGrid(){
   h += '</tbody></table></div>';
   if(anyShift) h += '<p class="muted-t" style="font-size:12px;margin-top:8px">⏰ 英國 10月25日轉冬令時間，之後香港時間會晏一個鐘（標住 <b>HK +1h</b> 嗰啲日子）。你揀完之後，確認頁同日曆邀請會顯示準確嘅香港時間。</p>';
   box.innerHTML = h;
-  box.querySelectorAll(".cell.free,.cell.mine").forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
+  // .freed and .releasing are clickable too: they're my own seats mid-shuffle.
+  // Leaving them out is what stopped "move L5, then slide L4 into L5's old slot".
+  box.querySelectorAll(".cell.free,.cell.mine,.cell.freed,.cell.releasing")
+     .forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
 }
 
 function assignCell(date, uk){
@@ -478,8 +518,10 @@ function assignCell(date, uk){
     $("gridhint").innerHTML = `Lesson ${mineN} 取消咗 —— 再撳個格揀過，或者撳上面第二堂。`;
     renderRail(); renderGrid(); updateConfirm(); return;
   }
-  if(!state.openSet.has(date+"|"+uk)) return;
   if(!state.active){ $("gridhint").innerHTML = '⚠️ 先撳上面一堂（揀時間 →），再撳個格。'; return; }
+  // NOT just openSet: a seat I've vacated this session (and my own original seat)
+  // are mine to take, even though the server still lists them as booked.
+  if(!canTake(state.active, date+"|"+uk)) return;
   state.picks[state.active] = {date, uk, hk:hkAt(date,uk), action:actionFor(state.active)};
   const justN = state.active; state.active=null;
   $("gridhint").innerHTML = `✓ Lesson ${justN} 揀咗 <b>${fmtShort(date,uk)}</b>。仲想揀第二堂就撳上面嗰堂；揀完就撳下面確認。`;
