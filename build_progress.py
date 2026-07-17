@@ -32,6 +32,12 @@ def main():
     email_of = {}
     for r in wb["Students"].iter_rows(min_row=4, values_only=True):   # header row 3
         if r and r[0] and len(r) > 1 and r[1] and "@" in str(r[1]):
+            # Skip dropped/cancelled students — they must NOT be lookup-able or
+            # re-bookable on the public page, even though their past lessons stay
+            # in the sheet as a record. (Vince Yiu dropped out 2026-07-17.)
+            sstatus = str(r[2]).strip().lower() if len(r) > 2 and r[2] else ""
+            if sstatus in DEAD:
+                continue
             email_of[str(r[0]).strip()] = str(r[1]).strip().lower()
     # per student -> per lesson -> best row
     per = {}   # name -> {lesson: {"date":d, "uk":t}}
