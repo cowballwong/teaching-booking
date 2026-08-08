@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-31T03:22+01:00",
+  "generated": "2026-08-08T21:04+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -85,7 +85,7 @@
       ]
     },
     "3c36fdc2c0f913242e253e6293f35a525bce8fae047b94613e503f78c1106d6f": {
-      "done": 1,
+      "done": 2,
       "total": 5,
       "lessons": [
         {
@@ -94,9 +94,7 @@
         },
         {
           "n": 2,
-          "status": "upcoming",
-          "date": "2026-08-01",
-          "uk": "11:15"
+          "status": "done"
         },
         {
           "n": 3,
@@ -161,32 +159,32 @@
         {
           "n": 1,
           "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "08:45"
-        },
-        {
-          "n": 2,
-          "status": "upcoming",
           "date": "2026-08-08",
           "uk": "06:15"
         },
         {
-          "n": 3,
+          "n": 2,
           "status": "upcoming",
           "date": "2026-08-15",
           "uk": "06:15"
         },
         {
-          "n": 4,
+          "n": 3,
           "status": "upcoming",
           "date": "2026-08-22",
           "uk": "06:15"
         },
         {
-          "n": 5,
+          "n": 4,
           "status": "upcoming",
           "date": "2026-08-29",
           "uk": "06:15"
+        },
+        {
+          "n": 5,
+          "status": "upcoming",
+          "date": "2026-09-05",
+          "uk": "08:45"
         }
       ]
     },
@@ -257,14 +255,12 @@
       ]
     },
     "4a1456d454bea8eda6694093943f750ffda66b3480481f1555cfbad4b285c3e8": {
-      "done": 0,
+      "done": 1,
       "total": 5,
       "lessons": [
         {
           "n": 1,
-          "status": "upcoming",
-          "date": "2026-08-01",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 2,
@@ -274,9 +270,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-08-15",
-          "uk": "07:30"
+          "status": "open"
         },
         {
           "n": 4,
