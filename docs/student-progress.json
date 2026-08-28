@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-22T14:04+01:00",
+  "generated": "2026-08-28T03:52+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -51,8 +51,8 @@
         {
           "n": 5,
           "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "11:15"
+          "date": "2026-09-05",
+          "uk": "06:15"
         }
       ]
     },
@@ -83,7 +83,7 @@
       ]
     },
     "3c36fdc2c0f913242e253e6293f35a525bce8fae047b94613e503f78c1106d6f": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -96,9 +96,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-08-22",
-          "uk": "11:15"
+          "status": "done"
         },
         {
           "n": 4,
@@ -113,7 +111,7 @@
       ]
     },
     "b3628705b64ee3e01796f9a5f282f3ae186cc89917b29fb258709f44b2fce18d": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -126,9 +124,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-08-22",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 4,
@@ -145,7 +141,7 @@
       ]
     },
     "be7218d6a16bdf51c7a0309187ca6ee7c03fade75beb21c9a81610daf4a89425": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -158,9 +154,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-08-22",
-          "uk": "06:15"
+          "status": "done"
         },
         {
           "n": 4,
@@ -213,7 +207,7 @@
       ]
     },
     "271ceb94bdcb7ecd93593c5e11d686ab5eff2e1437f91fe405477e8a3f9ca927": {
-      "done": 1,
+      "done": 2,
       "total": 5,
       "lessons": [
         {
@@ -222,9 +216,7 @@
         },
         {
           "n": 2,
-          "status": "upcoming",
-          "date": "2026-08-22",
-          "uk": "10:00"
+          "status": "done"
         },
         {
           "n": 3,
@@ -247,7 +239,7 @@
       ]
     },
     "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": {
-      "done": 3,
+      "done": 4,
       "total": 5,
       "lessons": [
         {
@@ -264,9 +256,7 @@
         },
         {
           "n": 4,
-          "status": "upcoming",
-          "date": "2026-08-22",
-          "uk": "08:45"
+          "status": "done"
         },
         {
           "n": 5,
