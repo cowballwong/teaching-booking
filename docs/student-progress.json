@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-28T03:52+01:00",
+  "generated": "2026-08-31T15:31+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -111,7 +111,7 @@
       ]
     },
     "b3628705b64ee3e01796f9a5f282f3ae186cc89917b29fb258709f44b2fce18d": {
-      "done": 3,
+      "done": 5,
       "total": 5,
       "lessons": [
         {
@@ -128,20 +128,16 @@
         },
         {
           "n": 4,
-          "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "08:45"
+          "status": "done"
         }
       ]
     },
     "be7218d6a16bdf51c7a0309187ca6ee7c03fade75beb21c9a81610daf4a89425": {
-      "done": 3,
+      "done": 4,
       "total": 5,
       "lessons": [
         {
@@ -158,15 +154,13 @@
         },
         {
           "n": 4,
-          "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "06:15"
+          "status": "done"
         },
         {
           "n": 5,
           "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "08:45"
+          "date": "2026-09-12",
+          "uk": "11:15"
         }
       ]
     },
@@ -207,7 +201,7 @@
       ]
     },
     "271ceb94bdcb7ecd93593c5e11d686ab5eff2e1437f91fe405477e8a3f9ca927": {
-      "done": 2,
+      "done": 3,
       "total": 5,
       "lessons": [
         {
@@ -220,9 +214,7 @@
         },
         {
           "n": 3,
-          "status": "upcoming",
-          "date": "2026-08-29",
-          "uk": "10:00"
+          "status": "done"
         },
         {
           "n": 4,
@@ -313,6 +305,34 @@
           "status": "upcoming",
           "date": "2026-09-19",
           "uk": "07:30"
+        },
+        {
+          "n": 4,
+          "status": "open"
+        },
+        {
+          "n": 5,
+          "status": "open"
+        }
+      ]
+    },
+    "f13b805ac3b992827cd93622aa955c6e1401be4908e214afb80bcdedd3c21a63": {
+      "done": 0,
+      "total": 5,
+      "lessons": [
+        {
+          "n": 1,
+          "status": "upcoming",
+          "date": "2026-09-05",
+          "uk": "11:15"
+        },
+        {
+          "n": 2,
+          "status": "open"
+        },
+        {
+          "n": 3,
+          "status": "open"
         },
         {
           "n": 4,
