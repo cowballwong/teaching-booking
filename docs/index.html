@@ -156,9 +156,9 @@
     <!-- new: course intro -->
     <div class="card" id="introcard">
       <h3 style="font-size:18px;margin-bottom:10px">關於呢個課程 · About the course</h3>
-      <p style="margin:0 0 9px;font-size:14.5px"><b>背景：</b>AI agent 已經唔再淨係識傾偈 —— 佢可以幫你收 email、做資料搜集、寫嘢、駁工具、自動化你嘅日常。</p>
-      <p style="margin:0 0 9px;font-size:14.5px"><b>目的：</b>5 堂 1-on-1，由零開始教你親手起一個屬於你自己、香港用得着嘅私人 AI agent，唔使寫好多 code。</p>
-      <p style="margin:0;font-size:14.5px"><b>成品：</b>堂尾你會有一個真係行到嘅私人 AI agent —— 識用 skill 同工具、有記憶、開口開眼、識自動化，仲有埋你自己嘅控制 dashboard。</p>
+      <p style="margin:0 0 9px;font-size:14.5px"><b>背景：</b>以前要花幾個禮拜先砌得起嘅底層 —— 記憶、排程、面板、通訊 —— 而家第一堂就有齊。慳返嘅時間，全部用喺真正值錢嗰層。</p>
+      <p style="margin:0 0 9px;font-size:14.5px"><b>目的：</b>5 堂 1-on-1，由一個現成嘅 AI agent 開始：拆開佢、明白佢點運作，再一步步改造成你自己獨一無二嘅代理人。唔使寫好多 code。</p>
+      <p style="margin:0;font-size:14.5px"><b>成品：</b>堂尾你手上嗰個唔係一個下載返嚟嘅助手，而係一個你自己改出嚟、只此一家嘅代理人 —— 識做你嘅工作、有記憶、駁到你啲工具、有你自己嘅控制面板。</p>
     </div>
 
     <!-- existing: email only -->
@@ -242,16 +242,52 @@ const db = getFirestore(initializeApp({
 }));
 
 // lesson titles — matched to the latest C1–C5 deck
+// The CURRENT course. Students who started the earlier one keep its titles --
+// see OLD_COURSE below; their progress rows are numbers, and the names come
+// from here, so changing this list would have relabelled lessons they sat.
 const LESSONS = [
-  {n:1, en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步"},
-  {n:2, en:"Skills & Tools",           zh:"技能同工具 · 第一個外部工具 (Gmail)"},
-  {n:3, en:"Teach It to Upgrade Itself",zh:"教佢自己升級 · Describe→Research→Plan→Build"},
-  {n:4, en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
-  {n:5, en:"Autonomy & Guardrails",    zh:"放佢自己行 · 但管得住"},
+  {n:1, en:"Boot It Up",        zh:"開機 · 裝好，佢即場訪問你"},
+  {n:2, en:"Anatomy",           zh:"拆解原理 · 揭開塊板，睇清楚佢點運作"},
+  {n:3, en:"Rebuild It",        zh:"一齊改造 · 用你自己嘅材料整個 workflow"},
+  {n:4, en:"Give It Hands",     zh:"加工具 · 郵件、日曆、文件、雲端能力"},
+  {n:5, en:"One of a Kind",     zh:"獨一無二 · 改你自己個面板，隨傳隨到"},
+];
+
+// The course everybody before 2026-09-06 signed up for.
+const OLD_COURSE = [
+  {en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步"},
+  {en:"Skills & Tools",           zh:"技能同工具 · 第一個外部工具 (Gmail)"},
+  {en:"Teach It to Upgrade Itself",zh:"教佢自己升級 · Describe→Research→Plan→Build"},
+  {en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
+  {en:"Autonomy & Guardrails",    zh:"放佢自己行 · 但管得住"},
 ];
 // Per-student course override, keyed by sha256(lowercased email). Students not
 // listed here fall back to LESSONS + the generic decks/lessonN.pdf — unchanged.
 const OVERRIDES = {
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "271ceb94bdcb7ecd93593c5e11d686ab5eff2e1437f91fe405477e8a3f9ca927": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "3c36fdc2c0f913242e253e6293f35a525bce8fae047b94613e503f78c1106d6f": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "4a1456d454bea8eda6694093943f750ffda66b3480481f1555cfbad4b285c3e8": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "70c7483d7fd12020c5b2f84eacb8609a672401ad6977b5ea451354d5f8c7beb2": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "7c395c885b64088f8f64e6a621761eb1257a1b38bf129758b05203fb7fec070f": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "b0b969178d71ae629e75ed271f192a2eb643f76f4156fb781cc094c02514af35": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "b3628705b64ee3e01796f9a5f282f3ae186cc89917b29fb258709f44b2fce18d": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "be7218d6a16bdf51c7a0309187ca6ee7c03fade75beb21c9a81610daf4a89425": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "f13b805ac3b992827cd93622aa955c6e1401be4908e214afb80bcdedd3c21a63": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
+  // enrolled on the earlier course -- keeps its titles and its decks
+  "f4f8e5546bdd3176d77ba4afe84d9f39cc2e4dd70c595db79332dde8edcd5c13": { deckDir: "decks/", deckPrefix: "lesson", titles: OLD_COURSE },
   // Kenny Pig — bespoke pastor "Claude Desktop" course (own decks in decks/kenny/)
   "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": {
     deckDir: "decks/kenny/",
@@ -265,8 +301,9 @@ const OVERRIDES = {
   },
 };
 const metaOf = n => (state.override && state.override.titles[n-1]) || LESSONS[n-1];
-const deckOf = n => (state.override ? state.override.deckDir + "class" + n + ".pdf"
-                                    : "decks/lesson" + n + ".pdf");
+const deckOf = n => (state.override
+  ? state.override.deckDir + (state.override.deckPrefix || "class") + n + ".pdf"
+  : "decks/aki/class" + n + ".pdf");
 // Grid columns are DERIVED from open-slots.json — never hardcode the slot times
 // here. build_slots.py (SLOTS_UK) is the single source of truth; a hardcoded copy
 // silently hides any newly-added time (06:15 was invisible here for exactly that
