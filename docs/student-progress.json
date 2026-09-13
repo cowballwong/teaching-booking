@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-31T15:31+01:00",
+  "generated": "2026-09-13T10:01+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -29,7 +29,7 @@
       ]
     },
     "b0b969178d71ae629e75ed271f192a2eb643f76f4156fb781cc094c02514af35": {
-      "done": 4,
+      "done": 5,
       "total": 5,
       "lessons": [
         {
@@ -50,9 +50,7 @@
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "06:15"
+          "status": "done"
         }
       ]
     },
@@ -137,7 +135,7 @@
       ]
     },
     "be7218d6a16bdf51c7a0309187ca6ee7c03fade75beb21c9a81610daf4a89425": {
-      "done": 4,
+      "done": 5,
       "total": 5,
       "lessons": [
         {
@@ -158,9 +156,7 @@
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-09-12",
-          "uk": "11:15"
+          "status": "done"
         }
       ]
     },
@@ -201,7 +197,7 @@
       ]
     },
     "271ceb94bdcb7ecd93593c5e11d686ab5eff2e1437f91fe405477e8a3f9ca927": {
-      "done": 3,
+      "done": 5,
       "total": 5,
       "lessons": [
         {
@@ -218,15 +214,11 @@
         },
         {
           "n": 4,
-          "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "10:00"
+          "status": "done"
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-09-12",
-          "uk": "10:00"
+          "status": "done"
         }
       ]
     },
@@ -285,20 +277,16 @@
       ]
     },
     "f4f8e5546bdd3176d77ba4afe84d9f39cc2e4dd70c595db79332dde8edcd5c13": {
-      "done": 0,
+      "done": 2,
       "total": 5,
       "lessons": [
         {
           "n": 1,
-          "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 2,
-          "status": "upcoming",
-          "date": "2026-09-12",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 3,
@@ -317,14 +305,12 @@
       ]
     },
     "f13b805ac3b992827cd93622aa955c6e1401be4908e214afb80bcdedd3c21a63": {
-      "done": 0,
+      "done": 1,
       "total": 5,
       "lessons": [
         {
           "n": 1,
-          "status": "upcoming",
-          "date": "2026-09-05",
-          "uk": "11:15"
+          "status": "done"
         },
         {
           "n": 2,
@@ -341,6 +327,42 @@
         {
           "n": 5,
           "status": "open"
+        }
+      ]
+    },
+    "0a50a2117a41ea5dc97f8e33048bf3d04fefc41a87b93a433cc35bd44ba81ee3": {
+      "done": 0,
+      "total": 5,
+      "lessons": [
+        {
+          "n": 1,
+          "status": "upcoming",
+          "date": "2026-09-26",
+          "uk": "07:30"
+        },
+        {
+          "n": 2,
+          "status": "upcoming",
+          "date": "2026-10-03",
+          "uk": "07:30"
+        },
+        {
+          "n": 3,
+          "status": "upcoming",
+          "date": "2026-10-10",
+          "uk": "07:30"
+        },
+        {
+          "n": 4,
+          "status": "upcoming",
+          "date": "2026-10-17",
+          "uk": "07:30"
+        },
+        {
+          "n": 5,
+          "status": "upcoming",
+          "date": "2026-10-24",
+          "uk": "07:30"
         }
       ]
     }
