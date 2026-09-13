@@ -309,7 +309,7 @@ const deckOf = n => (state.override
 // silently hides any newly-added time (06:15 was invisible here for exactly that
 // reason). BASE_COLS only fixes the grid's shape so the familiar columns still
 // render when they're fully booked; anything the json offers is unioned in.
-const BASE_COLS = ["06:15","07:30","08:45","10:00","11:15"];
+const BASE_COLS = ["07:30","08:45","10:00","11:15"];   // 06:15 = Anzon's reserve, not offered (2026-09-13)
 let SLOT_COLS = BASE_COLS.slice();
 // "date|uk" -> exact HK time as computed server-side (DST-correct per date).
 const hkMap = new Map();

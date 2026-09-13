@@ -28,6 +28,9 @@ SLOTS_UK = ["06:15", "07:30", "08:45", "10:00", "11:15"]
 # host L1 only if its next slot is open too — so 11:15, the last one, never can.
 # Mirrored in students/sync_gcal.py and dashboard data_loader.py.
 DOUBLE_L1_FROM = "2026-09-20"
+# 06:15 is Anzon's spare slot — kept in SLOTS_UK (existing bookings still count),
+# never offered to students (Anzon, 2026-09-13: 「用黎做後備，唔好開放俾學生揀」).
+RESERVED_UK = {"06:15"}
 IRIS_MARKERS = {"al", "ld"}                 # Iris leave / work — never block teaching
 OUT = Path(__file__).parent / "docs" / "open-slots.json"
 XLSX = r"G:/My Drive/AI_Development/02_freelance/03_ai-teaching/students/attendance.xlsx"
@@ -160,7 +163,7 @@ def main():
         if day_block(day, blocking) and day.isoformat() not in forced_open:
             continue
         for uk in SLOTS_UK:
-            if (day.isoformat(), uk) in taken:
+            if uk in RESERVED_UK or (day.isoformat(), uk) in taken:
                 continue
             fl = slot_flags(day, uk, flags)
             if fl:
