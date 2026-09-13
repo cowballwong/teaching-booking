@@ -255,7 +255,7 @@ const LESSONS = [
 
 // The course everybody before 2026-09-06 signed up for.
 const OLD_COURSE = [
-  {en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步"},
+  {en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步（兩節 · 2 小時 15 分）"},
   {en:"Skills & Tools",           zh:"技能同工具 · 第一個外部工具 (Gmail)"},
   {en:"Teach It to Upgrade Itself",zh:"教佢自己升級 · Describe→Research→Plan→Build"},
   {en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
@@ -505,10 +505,31 @@ function freedByMe(){
 // that's been vacated, or n's own original seat (so pressing 改期 by mistake is
 // undoable — you can always put a lesson back where it was).
 function canTake(n, key){
-  if (state.openSet.has(key)) return true;
-  if (freedByMe().has(key)) return true;
+  if (+n !== 1 && l1Tail().has(key)) return false;   // second half of my own L1
   const own = (state.prog || []).find(x => x.n === n && x.date && x.uk);
-  return !!own && own.date + "|" + own.uk === key;
+  if (!!own && own.date + "|" + own.uk === key) return true;
+  if (+n === 1) {
+    // Lesson 1 is two slots (2h15m): this seat AND the next must both be free.
+    const [date, uk] = key.split("|");
+    const nxt = nextCol(uk);
+    const ok = k => state.openSet.has(k) || freedByMe().has(k);
+    if (!ok(key) || !nxt) return false;
+    const nk = date + "|" + nxt;
+    const busyMine = Object.keys(state.picks).some(m => +m !== 1 && state.picks[m].date + "|" + state.picks[m].uk === nk);
+    return !busyMine && (state.l1Set.has(key) || ok(nk));
+  }
+  return state.openSet.has(key) || freedByMe().has(key);
+}
+// ── double Lesson 1 (2h15m, from the Sept 2026 round — Anzon, 2026-09-13) ──
+const DOUBLE_L1_FROM = "2026-09-20";
+function nextCol(uk){ const i = SLOT_COLS.indexOf(uk); return i >= 0 && i < SLOT_COLS.length - 1 ? SLOT_COLS[i + 1] : null; }
+// Seats that are the second half of my L1 (picked now, or already booked), -> "L1".
+function l1Tail(){
+  const t = new Map();
+  const add = (date, uk) => { const nx = date >= DOUBLE_L1_FROM && nextCol(uk); if (nx) t.set(date + "|" + nx, 1); };
+  if (state.picks[1]) add(state.picks[1].date, state.picks[1].uk);
+  else { const b = (state.prog || []).find(x => x.n === 1 && x.date && x.uk); if (b) add(b.date, b.uk); }
+  return t;
 }
 // Rows to draw = every date with an open slot, PLUS every date this student
 // already has a lesson on. A fully-booked Saturday has no open slots, so it
@@ -545,8 +566,14 @@ function renderGrid(){
       const bookedN = mine.get(key);
       const freedN = freed.get(key);
       const open = state.openSet.has(key);
+      const tail = l1Tail().has(key);
       let cls="taken", txt="—", tip=`UK ${uk} · HK ${hkAt(date,uk)}`;
       if(mineN){ cls="mine"; txt="L"+mineN; }                        // picked just now
+      else if(tail){
+        // Second half of Lesson 1 — shown, not clickable (tap the first half to move it).
+        cls = state.picks[1] ? "mine cont" : "booked cont"; txt="L1";
+        tip = "Lesson 1 係兩節（2 小時 15 分），呢格係下半節";
+      }
       else if(freedN){
         // I've moved this lesson elsewhere, so its old seat is back on the
         // market — for MY other lessons. Show it as takeable, not as mine.
@@ -577,7 +604,7 @@ function renderGrid(){
   // Leaving them out is what stopped "move L5, then slide L4 into L5's old slot".
   // .editable/.holding are the edit-mode pick-up targets.
   box.querySelectorAll(".cell.free,.cell.mine,.cell.freed,.cell.releasing,.cell.editable,.cell.holding")
-     .forEach(c=>c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk));
+     .forEach(c=>{ if(!c.classList.contains("cont")) c.onclick=()=>assignCell(c.dataset.date,c.dataset.uk); });
 }
 
 // ── edit mode ──
@@ -619,7 +646,10 @@ function assignCell(date, uk){
   if(!state.active){ $("gridhint").innerHTML = '⚠️ 先撳上面一堂（揀時間 →），再撳個格。'; return; }
   // NOT just openSet: a seat I've vacated this session (and my own original seat)
   // are mine to take, even though the server still lists them as booked.
-  if(!canTake(state.active, date+"|"+uk)) return;
+  if(!canTake(state.active, date+"|"+uk)){
+    if(+state.active === 1) $("gridhint").innerHTML = '⚠️ <b>Lesson 1 係兩節（2 小時 15 分）</b>，要連住兩格都有位 —— 呢個時段下一格冇位，揀過第二個。';
+    return;
+  }
   state.picks[state.active] = {date, uk, hk:hkAt(date,uk), action:actionFor(state.active)};
   const justN = state.active; state.active=null;
   $("gridhint").innerHTML = `✓ Lesson ${justN} 揀咗 <b>${fmtShort(date,uk)}</b>。仲想揀第二堂就撳上面嗰堂；揀完就撳下面確認。`;
@@ -643,6 +673,7 @@ function loadSlots(){
   return fetch("open-slots.json?cb="+Date.now()).then(r=>r.json()).then(data=>{
   const slots = data.slots||[];
   state.openSet = new Set(slots.map(s=>s.date+"|"+s.uk));
+  state.l1Set = new Set(slots.filter(s=>s.l1).map(s=>s.date+"|"+s.uk));
   state.dates = [...new Set(slots.map(s=>s.date))].sort();
   hkMap.clear();
   slots.forEach(s=>{ if(s.hk) hkMap.set(s.date+"|"+s.uk, s.hk); });

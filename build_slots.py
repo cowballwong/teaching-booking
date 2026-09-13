@@ -23,6 +23,11 @@ import openpyxl
 
 WEEKS = 16                                  # through end of Oct (Anzon, 2026-07-15)
 SLOTS_UK = ["06:15", "07:30", "08:45", "10:00", "11:15"]
+# Lesson 1 runs two back-to-back slots (2h15m) from the Kenneth/Stephen round on
+# (Anzon, 2026-09-13). A booked L1 also takes the NEXT slot, and an open slot can
+# host L1 only if its next slot is open too — so 11:15, the last one, never can.
+# Mirrored in students/sync_gcal.py and dashboard data_loader.py.
+DOUBLE_L1_FROM = "2026-09-20"
 IRIS_MARKERS = {"al", "ld"}                 # Iris leave / work — never block teaching
 OUT = Path(__file__).parent / "docs" / "open-slots.json"
 XLSX = r"G:/My Drive/AI_Development/02_freelance/03_ai-teaching/students/attendance.xlsx"
@@ -100,7 +105,7 @@ def load_taken():
     rows = list(ws.iter_rows(values_only=True))
     hidx = next(i for i, r in enumerate(rows[:8]) if r and any(c and "student" in str(c).lower() for c in r) and any(c and "date" in str(c).lower() for c in r))
     hdr = rows[hidx]; col = lambda n: next((i for i, h in enumerate(hdr) if h and n in str(h).lower()), None)
-    ci = {k: col(k) for k in ["date", "time", "status"]}
+    ci = {k: col(k) for k in ["date", "time", "status", "lesson"]}
     taken = set()
     for r in rows[hidx + 1:]:
         st = str(r[ci['status']]).strip().lower() if ci['status'] is not None and r[ci['status']] else ""
@@ -108,8 +113,21 @@ def load_taken():
         # (NOT just startswith "schedul", which wrongly skipped "Rescheduled".)
         if st not in ("scheduled", "rescheduled", "done"): continue
         if not r[ci['date']] or not r[ci['time']]: continue
-        taken.add((str(r[ci['date']])[:10], str(r[ci['time']])[:5]))
+        d, t = str(r[ci['date']])[:10], str(r[ci['time']])[:5]
+        taken.add((d, t))
+        if is_double(r[ci['lesson']] if ci['lesson'] is not None else None, d):
+            nxt = next_slot(t)
+            if nxt: taken.add((d, nxt))
     return taken
+
+def is_double(lesson, date_iso):
+    try:
+        return int(lesson) == 1 and str(date_iso)[:10] >= DOUBLE_L1_FROM
+    except (TypeError, ValueError):
+        return False
+
+def next_slot(uk):
+    return SLOTS_UK[SLOTS_UK.index(uk) + 1] if uk in SLOTS_UK[:-1] else None
 
 def load_manual_blocks():
     """blocked_dates.json -> (blocked, forced_open).
@@ -150,6 +168,11 @@ def main():
                 continue  # has a same-day event overlap -> hold back, let Anzon decide
             open_slots.append({"date": day.isoformat(), "weekday": "Sat",
                                "uk": uk, "hk": hk(uk, day)})
+    # l1 = this slot can start a double Lesson 1 (its next slot is open as well).
+    open_keys = {(s["date"], s["uk"]) for s in open_slots}
+    for s in open_slots:
+        nxt = next_slot(s["uk"])
+        s["l1"] = bool(nxt) and (s["date"], nxt) in open_keys
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({
         "generated": dt.datetime.now(LON).isoformat(timespec="minutes"),
