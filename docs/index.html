@@ -35,6 +35,13 @@
   .seg button{flex:1;padding:11px;border:1px solid var(--line);background:#fff;
     border-radius:9px;cursor:pointer;font-size:14px;font-weight:700;color:var(--soft)}
   .seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tracks{display:flex;flex-direction:column;gap:8px}
+  .tracks button{display:block;width:100%;text-align:left;padding:11px 13px;border:1px solid var(--line);
+    background:#fff;border-radius:9px;cursor:pointer;font-family:inherit;color:var(--ink);line-height:1.45}
+  .tracks button b{font-size:14.5px}
+  .tracks button span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+  .tracks button.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;background:var(--stripe)}
+  .req{color:var(--accent)}
   button.cta{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);
     color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
   button.cta:disabled{opacity:.4;cursor:not-allowed}
@@ -158,6 +165,12 @@
       <h3 style="font-size:18px;margin-bottom:10px">關於呢個課程 · About the course</h3>
       <p style="margin:0 0 9px;font-size:14.5px"><b>背景：</b>以前要花幾個禮拜先砌得起嘅底層 —— 記憶、排程、面板、通訊 —— 而家第一堂就有齊。慳返嘅時間，全部用喺真正值錢嗰層。</p>
       <p style="margin:0 0 9px;font-size:14.5px"><b>目的：</b>5 堂 1-on-1，由一個現成嘅 AI agent 開始：拆開佢、明白佢點運作，再一步步改造成你自己獨一無二嘅代理人。唔使寫好多 code。</p>
+      <p style="margin:0 0 6px;font-size:14.5px"><b>兩個版本，同一套課程：</b>5 堂內容同 agent 架構完全一樣，分別只係你用邊個工具去做。</p>
+      <ul style="margin:0 0 9px;padding-left:20px;font-size:14.5px">
+        <li style="margin-bottom:4px"><b>A · Hermes + Ollama</b> —— 開源 agent，唔使 Claude 戶口。適合香港、內地等用唔到 Claude 嘅地區。</li>
+        <li style="margin-bottom:4px"><b>B · Claude app</b> —— 用 Anthropic 嘅 Claude app，要有 Claude Pro 月費計劃。適合用得到 Claude 嘅地區（例如英國）。</li>
+        <li>唔肯定揀邊個？報名揀 <b>C · 未知</b>，第一堂之前我同你一齊決定。</li>
+      </ul>
       <p style="margin:0;font-size:14.5px"><b>成品：</b>堂尾你手上嗰個唔係一個下載返嚟嘅助手，而係一個你自己改出嚟、只此一家嘅代理人 —— 識做你嘅工作、有記憶、駁到你啲工具、有你自己嘅控制面板。</p>
     </div>
 
@@ -182,6 +195,14 @@
         <label>Email</label>
         <input id="nemail" type="email" placeholder="you@example.com" autocomplete="email">
       </div>
+      <div class="row">
+        <label>課程版本 / Track <span class="req">*</span></label>
+        <div class="tracks" id="track">
+          <button type="button" data-track="A"><b>A · Hermes + Ollama</b><span>用唔到 Claude 嘅地區（香港、內地）</span></button>
+          <button type="button" data-track="B"><b>B · Claude app</b><span>用得到 Claude，要 Claude Pro 月費計劃</span></button>
+          <button type="button" data-track="C"><b>C · 未知 / Not sure</b><span>第一堂之前我同你一齊決定</span></button>
+        </div>
+      </div>
       <button class="cta" id="startnew" disabled>睇課程 · See the 5 lessons →</button>
     </div>
 
@@ -203,7 +224,7 @@
         <div id="gridhint" class="hint" style="margin-bottom:10px">先撳上面一堂，再喺下面個格揀時間。可以一次過揀幾堂，最後一個掣 confirm。</div>
         <div id="grid"><p class="muted-t">載入緊… Loading…</p></div>
         <div id="feenote" class="hide" style="margin-top:13px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--stripe);font-size:14px;line-height:1.55">
-          💳 <b>學費 · Course fee：HK$1,000</b>（全 5 堂 / for all 5 lessons）<br>
+          💳 <b>學費 · Course fee：HK$1,500</b>（全 5 堂 / for all 5 lessons）<br>
           喺<b>最後一堂</b>先交 —— the fee is paid at your <b>final lesson</b>, not now.
         </div>
         <div class="row" style="margin-top:14px">
@@ -349,9 +370,16 @@ $("kind").addEventListener("click", e => {
   $("introcard").classList.toggle("hide", state.kind!=="new");
   $("newcard").classList.toggle("hide", state.kind!=="new");
 });
-["nname","nemail"].forEach(id=>$(id).addEventListener("input",()=>{
-  $("startnew").disabled = !( $("nname").value.trim() && emailOk($("nemail").value.trim()) );
-}));
+function newReady(){
+  $("startnew").disabled = !( $("nname").value.trim() && emailOk($("nemail").value.trim()) && state.track );
+}
+["nname","nemail"].forEach(id=>$(id).addEventListener("input", newReady));
+$("track").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  state.track = b.dataset.track;
+  [...$("track").children].forEach(x=>x.classList.toggle("on", x===b));
+  newReady();
+});
 
 // ── existing lookup ──
 $("lookup").addEventListener("click", async () => {
@@ -695,6 +723,7 @@ $("submit").addEventListener("click", async () => {
       kind: state.kind, action: p.action, lesson: +n,
       slot_date: p.date, slot_uk: p.uk, slot_hk: p.hk,
       name: state.kind==="new" ? state.name : "", email: state.email, note,
+      ...(state.kind==="new" && state.track ? {track: state.track} : {}),
       status: "pending", created: serverTimestamp(), ua: navigator.userAgent.slice(0,120)
     })));
     const lines = entries.sort((a,b)=>a[0]-b[0])
