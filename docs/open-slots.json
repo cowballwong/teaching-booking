@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-19T17:23+01:00",
+  "generated": "2026-09-19T17:24+01:00",
   "tz_note": "UK = Europe/London; HK = Asia/Hong_Kong (UK+7 in BST, UK+8 in GMT) — computed per slot date",
   "slots": [
     {
@@ -7,42 +7,42 @@
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "18:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-03",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "18:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-17",
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "15:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-17",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "18:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-24",
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "15:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-24",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "18:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-31",
@@ -56,14 +56,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-10-31",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-07",
@@ -77,14 +77,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-07",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-14",
@@ -98,14 +98,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-14",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-21",
@@ -119,14 +119,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-21",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-28",
@@ -140,14 +140,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-11-28",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-12",
@@ -161,14 +161,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-12",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-19",
@@ -182,14 +182,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-19",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-26",
@@ -203,14 +203,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2026-12-26",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2027-01-02",
@@ -224,14 +224,14 @@
       "weekday": "Sat",
       "uk": "08:45",
       "hk": "16:45",
-      "l1": false
+      "l1": true
     },
     {
       "date": "2027-01-02",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
-      "l1": false
+      "l1": true
     }
   ]
 }
