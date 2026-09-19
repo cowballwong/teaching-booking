@@ -1,19 +1,19 @@
 {
-  "generated": "2026-09-19T17:24+01:00",
+  "generated": "2026-09-19T17:40+01:00",
   "tz_note": "UK = Europe/London; HK = Asia/Hong_Kong (UK+7 in BST, UK+8 in GMT) — computed per slot date",
   "slots": [
     {
-      "date": "2026-09-26",
+      "date": "2026-10-03",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "18:15",
       "l1": true
     },
     {
-      "date": "2026-10-03",
+      "date": "2026-10-10",
       "weekday": "Sat",
-      "uk": "11:15",
-      "hk": "18:15",
+      "uk": "08:45",
+      "hk": "15:45",
       "l1": true
     },
     {
