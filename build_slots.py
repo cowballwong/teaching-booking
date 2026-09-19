@@ -27,7 +27,7 @@ SLOTS_UK = ["06:15", "07:30", "08:45", "10:00", "11:15"]
 # (Anzon, 2026-09-13). A booked L1 also takes the NEXT slot, and an open slot can
 # host L1 only if its next slot is open too — so 11:15, the last one, never can.
 # Mirrored in students/sync_gcal.py and dashboard data_loader.py.
-DOUBLE_L1_FROM = "2026-09-20"
+DOUBLE_L1_FROM = "9999-12-31"  # double L1 switched OFF 2026-09-19 (Anzon: Lesson 1 back to one hour)
 # 06:15 is Anzon's spare slot — kept in SLOTS_UK (existing bookings still count),
 # never offered to students (Anzon, 2026-09-13: 「用黎做後備，唔好開放俾學生揀」).
 RESERVED_UK = {"06:15"}
@@ -175,7 +175,7 @@ def main():
     open_keys = {(s["date"], s["uk"]) for s in open_slots}
     for s in open_slots:
         nxt = next_slot(s["uk"])
-        s["l1"] = bool(nxt) and (s["date"], nxt) in open_keys
+        s["l1"] = s["date"] < DOUBLE_L1_FROM or (bool(nxt) and (s["date"], nxt) in open_keys)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({
         "generated": dt.datetime.now(LON).isoformat(timespec="minutes"),

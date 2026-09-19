@@ -276,7 +276,7 @@ const LESSONS = [
 
 // The course everybody before 2026-09-06 signed up for.
 const OLD_COURSE = [
-  {en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步（兩節 · 2 小時 15 分）"},
+  {en:"Your Own AI Agent",        zh:"整個私人 AI 助理 · 由零起步"},
   {en:"Skills & Tools",           zh:"技能同工具 · 第一個外部工具 (Gmail)"},
   {en:"Teach It to Upgrade Itself",zh:"教佢自己升級 · Describe→Research→Plan→Build"},
   {en:"Voice · Vision · API",     zh:"開口·開眼·生圖 + 雲端能力"},
@@ -536,8 +536,8 @@ function canTake(n, key){
   if (+n !== 1 && l1Tail().has(key)) return false;   // second half of my own L1
   const own = (state.prog || []).find(x => x.n === n && x.date && x.uk);
   if (!!own && own.date + "|" + own.uk === key) return true;
-  if (+n === 1) {
-    // Lesson 1 is two slots (2h15m): this seat AND the next must both be free.
+  if (+n === 1 && key.split("|")[0] >= DOUBLE_L1_FROM) {
+    // Double Lesson 1 only (switched off 2026-09-19): this seat AND the next must both be free.
     const [date, uk] = key.split("|");
     const nxt = nextCol(uk);
     const ok = k => state.openSet.has(k) || freedByMe().has(k);
@@ -549,7 +549,7 @@ function canTake(n, key){
   return state.openSet.has(key) || freedByMe().has(key);
 }
 // ── double Lesson 1 (2h15m, from the Sept 2026 round — Anzon, 2026-09-13) ──
-const DOUBLE_L1_FROM = "2026-09-20";
+const DOUBLE_L1_FROM = "9999-12-31";  // double L1 OFF 2026-09-19 (Lesson 1 back to 1 hour)
 function nextCol(uk){ const i = SLOT_COLS.indexOf(uk); return i >= 0 && i < SLOT_COLS.length - 1 ? SLOT_COLS[i + 1] : null; }
 // Seats that are the second half of my L1 (picked now, or already booked), -> "L1".
 function l1Tail(){
@@ -675,7 +675,7 @@ function assignCell(date, uk){
   // NOT just openSet: a seat I've vacated this session (and my own original seat)
   // are mine to take, even though the server still lists them as booked.
   if(!canTake(state.active, date+"|"+uk)){
-    if(+state.active === 1) $("gridhint").innerHTML = '⚠️ <b>Lesson 1 係兩節（2 小時 15 分）</b>，要連住兩格都有位 —— 呢個時段下一格冇位，揀過第二個。';
+    if(+state.active === 1) $("gridhint").innerHTML = '⚠️ 呢個時段冇位，揀過第二個。';
     return;
   }
   state.picks[state.active] = {date, uk, hk:hkAt(date,uk), action:actionFor(state.active)};
