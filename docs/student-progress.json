@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-19T17:40+01:00",
+  "generated": "2026-09-25T17:14+01:00",
   "note": "keyed by sha256(lowercased email); per-lesson statuses only, no PII",
   "students": {
     "f09607c87b389a5a0dabec16a22ce2138aef89dc46f7fcf61026a50763b97713": {
@@ -81,7 +81,7 @@
       ]
     },
     "3c36fdc2c0f913242e253e6293f35a525bce8fae047b94613e503f78c1106d6f": {
-      "done": 3,
+      "done": 4,
       "total": 5,
       "lessons": [
         {
@@ -102,9 +102,7 @@
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-09-19",
-          "uk": "11:15"
+          "status": "done"
         }
       ]
     },
@@ -223,7 +221,7 @@
       ]
     },
     "37bd4960e585817bd8ebe98540f9842aad451ccb0005bbb9d70704fb9002e2a9": {
-      "done": 4,
+      "done": 5,
       "total": 5,
       "lessons": [
         {
@@ -244,9 +242,7 @@
         },
         {
           "n": 5,
-          "status": "upcoming",
-          "date": "2026-09-19",
-          "uk": "08:45"
+          "status": "done"
         }
       ]
     },
@@ -277,14 +273,12 @@
       ]
     },
     "f4f8e5546bdd3176d77ba4afe84d9f39cc2e4dd70c595db79332dde8edcd5c13": {
-      "done": 0,
+      "done": 1,
       "total": 5,
       "lessons": [
         {
           "n": 1,
-          "status": "upcoming",
-          "date": "2026-09-19",
-          "uk": "07:30"
+          "status": "done"
         },
         {
           "n": 2,
@@ -367,6 +361,34 @@
           "status": "upcoming",
           "date": "2026-10-24",
           "uk": "07:30"
+        }
+      ]
+    },
+    "129675095cdbc359ac3eef774ed6de50f59bdb94d364bf6851bdeef5d4b32c1e": {
+      "done": 0,
+      "total": 5,
+      "lessons": [
+        {
+          "n": 1,
+          "status": "upcoming",
+          "date": "2026-10-03",
+          "uk": "11:15"
+        },
+        {
+          "n": 2,
+          "status": "open"
+        },
+        {
+          "n": 3,
+          "status": "open"
+        },
+        {
+          "n": 4,
+          "status": "open"
+        },
+        {
+          "n": 5,
+          "status": "open"
         }
       ]
     }

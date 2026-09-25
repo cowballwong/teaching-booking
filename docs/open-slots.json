@@ -1,14 +1,7 @@
 {
-  "generated": "2026-09-19T17:40+01:00",
+  "generated": "2026-09-25T17:14+01:00",
   "tz_note": "UK = Europe/London; HK = Asia/Hong_Kong (UK+7 in BST, UK+8 in GMT) — computed per slot date",
   "slots": [
-    {
-      "date": "2026-10-03",
-      "weekday": "Sat",
-      "uk": "11:15",
-      "hk": "18:15",
-      "l1": true
-    },
     {
       "date": "2026-10-10",
       "weekday": "Sat",
@@ -228,6 +221,27 @@
     },
     {
       "date": "2027-01-02",
+      "weekday": "Sat",
+      "uk": "11:15",
+      "hk": "19:15",
+      "l1": true
+    },
+    {
+      "date": "2027-01-09",
+      "weekday": "Sat",
+      "uk": "07:30",
+      "hk": "15:30",
+      "l1": true
+    },
+    {
+      "date": "2027-01-09",
+      "weekday": "Sat",
+      "uk": "08:45",
+      "hk": "16:45",
+      "l1": true
+    },
+    {
+      "date": "2027-01-09",
       "weekday": "Sat",
       "uk": "11:15",
       "hk": "19:15",
